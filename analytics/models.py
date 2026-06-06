@@ -54,6 +54,9 @@ class Sku:
     supplier_name: str | None = None
     supplier_country: str | None = None
     supplier_reliability: float | None = None
+    abc_class: str | None = None        # value class A/B/C (portfolio-relative)
+    xyz_class: str | None = None        # demand-variability class X/Y/Z
+    demand_cv: float | None = None      # coefficient of variation of weekly demand
 
 
 # ── Raw rows (consumed by analytics/ingest.py) ───────────────────────────────

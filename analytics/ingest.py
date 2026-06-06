@@ -21,6 +21,7 @@ from __future__ import annotations
 import math
 from datetime import date, timedelta
 
+from analytics.metrics import classify_abc, demand_cv, xyz_class
 from analytics.models import Batch, BatchRow, SalesRow, Sku, SkuRow
 
 # Named windows / policy parameters — NOT magic numbers.
@@ -144,8 +145,15 @@ def assemble_sku(
     demand_window_weeks: int = DEMAND_WINDOW_WEEKS,
     dead_window_weeks: int = DEAD_STOCK_WINDOW_WEEKS,
 ) -> Sku:
-    """Turn one SKU's raw rows into the assembled ``Sku`` the metrics consume."""
-    avg_weekly = compute_avg_weekly_demand(sales_rows, reference_date, demand_window_weeks)
+    """Turn one SKU's raw rows into the assembled ``Sku`` the metrics consume.
+
+    ``demand_cv`` is computed from the same windowed series whose mean is
+    ``avg_weekly_demand``, so the two are consistent. ``abc_class`` is left None
+    here — it is portfolio-relative and assigned later by ``classify_abc``.
+    """
+    demand_window = windowed_weekly_sales(sales_rows, reference_date, demand_window_weeks)
+    avg_weekly = sum(demand_window) / len(demand_window) if demand_window else 0.0
+    cv = demand_cv(demand_window)
     return Sku(
         sku_code=sku_row.sku_code,
         on_hand=compute_on_hand(batch_rows),
@@ -174,6 +182,8 @@ def assemble_sku(
         supplier_name=sku_row.supplier_name,
         supplier_country=sku_row.supplier_country,
         supplier_reliability=sku_row.supplier_reliability,
+        demand_cv=cv,
+        xyz_class=xyz_class(cv),
     )
 
 
@@ -258,4 +268,6 @@ def load_portfolio(engine, reference_date: date) -> list[Sku]:
                 reference_date,
             )
         )
+
+    classify_abc(portfolio)  # ABC is portfolio-relative — assign once over the whole set
     return portfolio

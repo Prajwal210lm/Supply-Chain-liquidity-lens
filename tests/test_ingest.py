@@ -254,3 +254,29 @@ def test_assemble_sku_surfaces_supplier_and_moq_facts():
     assert sku.supplier_name == "Levant Supply Co."
     assert sku.supplier_country == "Jordan"
     assert sku.supplier_reliability == pytest.approx(0.75)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# assemble_sku sets demand variability (CV + XYZ) from the SAME windowed series
+# whose mean is avg_weekly_demand. Window [8,12,8,12] -> mean 10, CV 0.20 -> X.
+# (ABC is portfolio-relative, so it is assigned later by classify_abc, not here.)
+# ─────────────────────────────────────────────────────────────────────────────
+def test_assemble_sku_sets_demand_cv_and_xyz():
+    sku_row = SkuRow(
+        sku_code="TV", unit_cost=100, selling_price=130, is_perishable=False,
+        shelf_life_days=None, service_level_target=0.95, lead_time_days=30,
+    )
+    sales_rows = [
+        SalesRow(date(2025, 6, 2), 0),     # current partial week excluded
+        SalesRow(date(2025, 5, 26), 12),
+        SalesRow(date(2025, 5, 19), 8),
+        SalesRow(date(2025, 5, 12), 12),
+        SalesRow(date(2025, 5, 5), 8),
+    ]
+    sku = assemble_sku(sku_row, sales_rows, [BatchRow(10.0, date(2025, 4, 1), None)],
+                       REF, demand_window_weeks=4, dead_window_weeks=4)
+
+    assert sku.avg_weekly_demand == pytest.approx(10.0)
+    assert sku.demand_cv == pytest.approx(0.20)
+    assert sku.xyz_class == "X"
+    assert sku.abc_class is None  # not assigned until classify_abc runs on the portfolio

@@ -13,6 +13,7 @@ Conventions (approved):
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 from analytics.models import Batch, Sku
@@ -153,6 +154,69 @@ def stockout_margin_loss(
     lost_units = daily * shortfall
     margin = selling_price - unit_cost
     return lost_units * margin
+
+
+# ── ABC-XYZ classification ───────────────────────────────────────────────────
+WEEKS_PER_YEAR = 52
+XYZ_X_MAX_CV = 0.5   # CV at or below this is stable (X)
+XYZ_Y_MAX_CV = 1.0   # CV at or below this is variable (Y); above is erratic (Z)
+ABC_A_MAX_SHARE = 0.80   # cumulative value share at or below this is A
+ABC_B_MAX_SHARE = 0.95   # ...then B; the rest is C
+
+
+def demand_cv(weekly_sales: list[float]) -> float | None:
+    """Coefficient of variation of weekly demand: population std / mean.
+
+    Descriptive (divide by N), so it is hand-checkable. ``None`` when there is no
+    demand (mean 0) — variability is undefined, not zero.
+    """
+    if not weekly_sales:
+        return None
+    n = len(weekly_sales)
+    mean = sum(weekly_sales) / n
+    if mean == 0:
+        return None
+    variance = sum((x - mean) ** 2 for x in weekly_sales) / n
+    return math.sqrt(variance) / mean
+
+
+def xyz_class(cv: float | None) -> str | None:
+    """Demand-variability class. Bands are upper-inclusive (0.5 -> X, 1.0 -> Y)."""
+    if cv is None:
+        return None
+    if cv <= XYZ_X_MAX_CV:
+        return "X"
+    if cv <= XYZ_Y_MAX_CV:
+        return "Y"
+    return "Z"
+
+
+def annual_usage_value(sku: Sku) -> float:
+    """Annual value flowing through a SKU. Reuses the ingestion-computed
+    ``avg_weekly_demand`` (the 52-week window average) — does not recompute it."""
+    return sku.avg_weekly_demand * WEEKS_PER_YEAR * sku.unit_cost
+
+
+def classify_abc(skus: list[Sku]) -> list[Sku]:
+    """Assign A/B/C by cumulative share of annual usage value (Pareto). Mutates
+    each SKU's ``abc_class`` in place and returns the list."""
+    total = sum(annual_usage_value(s) for s in skus)
+    if total <= 0:
+        for s in skus:
+            s.abc_class = None
+        return skus
+
+    cumulative = 0.0
+    for s in sorted(skus, key=annual_usage_value, reverse=True):
+        cumulative += annual_usage_value(s)
+        share = cumulative / total
+        if share <= ABC_A_MAX_SHARE:
+            s.abc_class = "A"
+        elif share <= ABC_B_MAX_SHARE:
+            s.abc_class = "B"
+        else:
+            s.abc_class = "C"
+    return skus
 
 
 # ── Service-level release guardrail ──────────────────────────────────────────
