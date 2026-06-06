@@ -47,6 +47,13 @@ class Sku:
     batches: list[Batch] = field(default_factory=list)
     recent_weekly_sales: list[float] | None = None
     dead_window_weeks: int = 26
+    # Reasoning-layer facts surfaced by ingestion (cited by the LLM, never recomputed).
+    moq: int = 0
+    moq_weeks_of_cover: float | None = None
+    weeks_since_last_sale: int | None = None
+    supplier_name: str | None = None
+    supplier_country: str | None = None
+    supplier_reliability: float | None = None
 
 
 # ── Raw rows (consumed by analytics/ingest.py) ───────────────────────────────
@@ -62,6 +69,10 @@ class SkuRow:
     shelf_life_days: int | None
     service_level_target: float
     lead_time_days: int
+    moq: int = 0
+    supplier_name: str | None = None
+    supplier_country: str | None = None
+    supplier_reliability: float | None = None
 
 
 @dataclass

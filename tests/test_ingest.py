@@ -30,8 +30,10 @@ from analytics.ingest import (
     compute_on_hand,
     compute_target_coverage_days,
     days_to_expiry,
+    moq_weeks_of_cover,
     service_level_z,
     week_start_of,
+    weeks_since_last_sale,
     windowed_weekly_sales,
 )
 from analytics.metrics import days_of_cover, is_dead
@@ -189,3 +191,66 @@ def test_assemble_sku_zero_sales_rows():
 
     # Non-perishable batch carries no expiry.
     assert sku.batches[0].days_to_expiry is None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# §E trivial facts: weeks since last sale (recency, NOT windowed).
+#   Most recent week with a positive sale, in whole weeks before the current week.
+# ─────────────────────────────────────────────────────────────────────────────
+def test_weeks_since_last_sale():
+    # Last positive sale 2025-04-28; current week starts 2025-06-02.
+    #   (2025-06-02 - 2025-04-28) = 35 days -> 5 whole weeks.
+    rows = [
+        SalesRow(date(2025, 4, 28), 7),
+        SalesRow(date(2025, 5, 5), 0),
+        SalesRow(date(2025, 5, 12), 0),
+        SalesRow(date(2025, 5, 19), 0),
+        SalesRow(date(2025, 5, 26), 0),
+        SalesRow(date(2025, 6, 2), 0),
+    ]
+    assert weeks_since_last_sale(rows, REF) == 5
+
+    # A sale in the current week -> 0 weeks since.
+    assert weeks_since_last_sale([SalesRow(date(2025, 6, 2), 3)], REF) == 0
+
+    # Never sold (all zero, or no rows) -> None.
+    assert weeks_since_last_sale([SalesRow(date(2025, 5, 26), 0)], REF) is None
+    assert weeks_since_last_sale([], REF) is None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# §E trivial facts: MOQ expressed in weeks of demand (the 'MOQ trap' signal).
+# ─────────────────────────────────────────────────────────────────────────────
+def test_moq_weeks_of_cover():
+    assert moq_weeks_of_cover(100, 25) == pytest.approx(4.0)   # 100 / 25
+    assert moq_weeks_of_cover(0, 25) == pytest.approx(0.0)
+    assert moq_weeks_of_cover(100, 0) is None                   # no demand -> undefined
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# §E trivial facts surfaced through assemble_sku: MOQ + supplier identity/reliability.
+# ─────────────────────────────────────────────────────────────────────────────
+def test_assemble_sku_surfaces_supplier_and_moq_facts():
+    sku_row = SkuRow(
+        sku_code="T2", unit_cost=100, selling_price=130, is_perishable=False,
+        shelf_life_days=None, service_level_target=0.95, lead_time_days=64,
+        moq=120, supplier_name="Levant Supply Co.", supplier_country="Jordan",
+        supplier_reliability=0.75,
+    )
+    # Window of 4 complete weeks -> avg 25/wk; last positive sale one week back.
+    sales_rows = [
+        SalesRow(date(2025, 6, 2), 0),
+        SalesRow(date(2025, 5, 26), 10),
+        SalesRow(date(2025, 5, 19), 20),
+        SalesRow(date(2025, 5, 12), 30),
+        SalesRow(date(2025, 5, 5), 40),
+    ]
+    sku = assemble_sku(sku_row, sales_rows, [BatchRow(50.0, date(2025, 4, 1), None)],
+                       REF, demand_window_weeks=4, dead_window_weeks=4)
+
+    assert sku.moq == 120
+    assert sku.moq_weeks_of_cover == pytest.approx(4.8)   # 120 / 25
+    assert sku.weeks_since_last_sale == 1                  # last sale 2025-05-26
+    assert sku.supplier_name == "Levant Supply Co."
+    assert sku.supplier_country == "Jordan"
+    assert sku.supplier_reliability == pytest.approx(0.75)

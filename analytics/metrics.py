@@ -155,6 +155,32 @@ def stockout_margin_loss(
     return lost_units * margin
 
 
+# ── Service-level release guardrail ──────────────────────────────────────────
+def order_up_to_units(avg_weekly_demand: float, target_coverage_days: float) -> float:
+    """The order-up-to stock level in units = the most you should hold."""
+    return avg_daily_demand(avg_weekly_demand) * target_coverage_days
+
+
+def safe_to_release(on_hand: float, avg_weekly_demand: float, target_coverage_days: float) -> bool:
+    """True iff the SKU sits above its order-up-to level, i.e. it carries excess.
+
+    Releasing only that excess leaves stock at the order-up-to level, which still
+    embeds the lead-time cover and service-level safety buffer — so the service
+    level cannot be breached. A SKU at or below the level (e.g. a stockout) is
+    never safe to release.
+    """
+    return on_hand > order_up_to_units(avg_weekly_demand, target_coverage_days)
+
+
+def releasable_candidates(skus: list[Sku]) -> list[Sku]:
+    """The deterministic guardrail the Prioritise node uses: only SKUs that are
+    safe to release. The reasoning layer may never re-admit one this drops."""
+    return [
+        s for s in skus
+        if safe_to_release(s.on_hand, s.avg_weekly_demand, s.target_coverage_days)
+    ]
+
+
 # ── Value at stake (portfolio roll-up) ───────────────────────────────────────
 def _is_sku_dead(sku: Sku) -> bool:
     if sku.recent_weekly_sales is None:

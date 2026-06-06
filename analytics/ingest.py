@@ -79,6 +79,25 @@ def compute_avg_weekly_demand(
     return sum(qtys) / len(qtys)
 
 
+# ── Recency / MOQ facts ──────────────────────────────────────────────────────
+def weeks_since_last_sale(sales_rows: list[SalesRow], reference_date: date) -> int | None:
+    """Whole weeks between the current week and the most recent week with a
+    positive sale. Recency, so NOT windowed. ``None`` if the SKU never sold."""
+    positive = [r.week_start_date for r in sales_rows if r.quantity_sold > 0]
+    if not positive:
+        return None
+    current_week_start = week_start_of(reference_date)
+    return (current_week_start - max(positive)).days // 7
+
+
+def moq_weeks_of_cover(moq: float, avg_weekly_demand: float) -> float | None:
+    """MOQ expressed as weeks of demand — how much one minimum order forces you
+    to hold. ``None`` when there is no demand to divide by."""
+    if avg_weekly_demand <= 0:
+        return None
+    return moq / avg_weekly_demand
+
+
 # ── Stock on hand ────────────────────────────────────────────────────────────
 def compute_on_hand(batch_rows: list[BatchRow]) -> float:
     return sum(float(b.quantity_on_hand) for b in batch_rows)
@@ -126,12 +145,11 @@ def assemble_sku(
     dead_window_weeks: int = DEAD_STOCK_WINDOW_WEEKS,
 ) -> Sku:
     """Turn one SKU's raw rows into the assembled ``Sku`` the metrics consume."""
+    avg_weekly = compute_avg_weekly_demand(sales_rows, reference_date, demand_window_weeks)
     return Sku(
         sku_code=sku_row.sku_code,
         on_hand=compute_on_hand(batch_rows),
-        avg_weekly_demand=compute_avg_weekly_demand(
-            sales_rows, reference_date, demand_window_weeks
-        ),
+        avg_weekly_demand=avg_weekly,
         unit_cost=float(sku_row.unit_cost),
         selling_price=float(sku_row.selling_price),
         target_coverage_days=compute_target_coverage_days(
@@ -150,6 +168,12 @@ def assemble_sku(
             sales_rows, reference_date, dead_window_weeks
         ),
         dead_window_weeks=dead_window_weeks,
+        moq=int(sku_row.moq),
+        moq_weeks_of_cover=moq_weeks_of_cover(sku_row.moq, avg_weekly),
+        weeks_since_last_sale=weeks_since_last_sale(sales_rows, reference_date),
+        supplier_name=sku_row.supplier_name,
+        supplier_country=sku_row.supplier_country,
+        supplier_reliability=sku_row.supplier_reliability,
     )
 
 
@@ -176,7 +200,12 @@ def load_portfolio(engine, reference_date: date) -> list[Sku]:
         )).fetchall()
 
         supplier_rows = conn.execute(text(
-            "SELECT sku_id, lead_time_days, is_primary FROM sku_supplier"
+            """
+            SELECT ss.sku_id, ss.lead_time_days, ss.moq, ss.is_primary,
+                   sup.name AS supplier_name, sup.country, sup.reliability_score
+            FROM sku_supplier ss
+            JOIN supplier sup ON sup.supplier_id = ss.supplier_id
+            """
         )).fetchall()
 
         batch_rows = conn.execute(text(
@@ -187,13 +216,12 @@ def load_portfolio(engine, reference_date: date) -> list[Sku]:
             "SELECT sku_id, week_start_date, quantity_sold FROM sales_history"
         )).fetchall()
 
-    # Resolve a single lead time per SKU: primary if present, else the minimum.
-    leads_primary: dict[int, int] = {}
-    leads_min: dict[int, int] = {}
+    # Resolve one supplier per SKU: the primary if present, else the shortest lead.
+    chosen_supplier: dict[int, object] = {}
     for r in supplier_rows:
-        leads_min[r.sku_id] = min(leads_min.get(r.sku_id, r.lead_time_days), r.lead_time_days)
-        if r.is_primary:
-            leads_primary[r.sku_id] = r.lead_time_days
+        cur = chosen_supplier.get(r.sku_id)
+        if cur is None or r.is_primary or (not cur.is_primary and r.lead_time_days < cur.lead_time_days):
+            chosen_supplier[r.sku_id] = r
 
     batches_by_sku: dict[int, list[BatchRow]] = defaultdict(list)
     for r in batch_rows:
@@ -207,7 +235,7 @@ def load_portfolio(engine, reference_date: date) -> list[Sku]:
 
     portfolio: list[Sku] = []
     for r in sku_rows:
-        lead = leads_primary.get(r.sku_id, leads_min.get(r.sku_id, 0))
+        sup = chosen_supplier.get(r.sku_id)
         sku_row = SkuRow(
             sku_code=r.sku_code,
             unit_cost=float(r.unit_cost),
@@ -215,7 +243,12 @@ def load_portfolio(engine, reference_date: date) -> list[Sku]:
             is_perishable=bool(r.is_perishable),
             shelf_life_days=r.shelf_life_days,
             service_level_target=float(r.service_level),
-            lead_time_days=int(lead),
+            lead_time_days=int(sup.lead_time_days) if sup else 0,
+            moq=int(sup.moq) if sup else 0,
+            supplier_name=sup.supplier_name if sup else None,
+            supplier_country=sup.country if sup else None,
+            supplier_reliability=float(sup.reliability_score)
+            if sup and sup.reliability_score is not None else None,
         )
         portfolio.append(
             assemble_sku(
