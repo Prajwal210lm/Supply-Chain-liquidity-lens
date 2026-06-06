@@ -1,0 +1,6 @@
+# Analytics core + data generation. Backend/frontend deps are added in later steps.
+numpy
+pandas
+SQLAlchemy
+psycopg2-binary
+pytest
