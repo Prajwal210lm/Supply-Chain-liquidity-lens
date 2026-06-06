@@ -139,27 +139,27 @@ def build_skus(cat_ids):
         })
 
     for _ in range(N_GENERAL_FMCG):
-        c = rng.uniform(5, 50)
+        c = rng.uniform(200, 1_500)   # carton/case-level; FMCG is largest value pool
         add("GF", "FMCG", pick(FMCG_CATS), c, c * rng.uniform(1.20, 1.40))
 
     for _ in range(N_SLOW_HIGH_VALUE):
-        c = rng.uniform(500, 5_000)
+        c = rng.uniform(2_500, 8_000)  # high-value specialty; 15–25 % of total
         add("SL", "SLOW", pick(FMCG_CATS + ["Pharma – OTC"]),
             c, c * rng.uniform(1.15, 1.30))
 
     for _ in range(N_NEAR_EXPIRY):
-        c = rng.uniform(50, 300)
+        c = rng.uniform(150, 600)
         add("PE", "EXPIRY",
             pick(["Pharma – Antibiotics", "Pharma – Chronic"]),
             c, c * rng.uniform(1.25, 1.40),
             perishable=True, shelf=int(rng.integers(365, 731)))
 
     for _ in range(N_STOCKOUT_RISK):
-        c = rng.uniform(10, 80)
+        c = rng.uniform(100, 500)
         add("SR", "STOCKOUT", pick(FMCG_CATS), c, c * rng.uniform(1.20, 1.35))
 
     for _ in range(N_NORMAL_PHARMA):
-        c      = rng.uniform(40, 200)
+        c      = rng.uniform(150, 800)
         perish = bool(rng.random() < 0.5)
         add("NP", "PHARMA", pick(PHARMA_CATS),
             c, c * rng.uniform(1.25, 1.40),
