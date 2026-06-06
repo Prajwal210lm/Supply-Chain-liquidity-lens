@@ -24,8 +24,9 @@ _SEGMENT_RE = re.compile(r"([A-Za-z_][A-Za-z0-9_]*)(?:\[(\d+)\])?")
 def resolve_path(run: DiagnosisRun, path: str):
     """Walk a dotted/indexed path against the FACT object. Raises on a bad path.
 
-    Supports attribute access and [int] list indexing, e.g.
-    'clusters[0].members[2].facts.lead_time_days'.
+    Supports attribute access, [int] list indexing, and dict-key lookup (for the
+    members' ``specifics`` dict), e.g. 'clusters[0].members[2].facts.lead_time_days'
+    or 'clusters[0].members[0].specifics.excess_units'.
     """
     obj = run
     for part in path.split("."):
@@ -33,7 +34,9 @@ def resolve_path(run: DiagnosisRun, path: str):
         if not m:
             raise KeyError(f"malformed path segment: {part!r}")
         name, index = m.group(1), m.group(2)
-        obj = getattr(obj, name)
+        # ClusterMember.specifics is a plain dict, so a segment may be a dict key
+        # rather than an attribute. Prefer key lookup when the object is a dict.
+        obj = obj[name] if isinstance(obj, dict) else getattr(obj, name)
         if index is not None:
             obj = obj[int(index)]
     return obj
@@ -58,8 +61,12 @@ def prose_violations(text: str, run: DiagnosisRun) -> list[str]:
         if not path_resolves(run, path):
             violations.append(f"prose placeholder '{{{{{path}}}}}' does not resolve to a fact")
 
-    without_placeholders = PLACEHOLDER_RE.sub("", text)
-    if re.search(r"\d", without_placeholders):
+    # Reject standalone numbers (a token that STARTS with a digit, e.g. "20,000",
+    # "146,000", "12%", "2x") but allow identifiers where digits are embedded in an
+    # alphanumeric word starting with a letter (e.g. SKU codes "SR1", "S1").
+    # Placeholders are blanked first so their paths (which contain digits) aren't seen.
+    tokens = re.findall(r"[0-9A-Za-z]+", PLACEHOLDER_RE.sub(" ", text))
+    if any(token[0].isdigit() for token in tokens):
         violations.append(f"prose contains a bare numeral (use a {{{{ref}}}} placeholder): {text!r}")
 
     return violations
@@ -146,6 +153,25 @@ def render_prose(text: str, run: DiagnosisRun) -> str:
     return PLACEHOLDER_RE.sub(lambda m: _format_value(resolve_path(run, m.group(1).strip())), text)
 
 
+# ── Cluster-level release guardrail (Prioritise) ─────────────────────────────
+def cluster_release_violations(cluster_id: str, run: DiagnosisRun, excluded: bool = False) -> list[str]:
+    """A non-excluded ranked RELEASE item must reference a cluster whose members
+    are all safe to release. The stockout cluster (members below their order-up-to
+    level) is never safe — it must be marked excluded_for_guardrail."""
+    if excluded:
+        return []
+    cluster = next((c for c in run.clusters if c.cluster_id == cluster_id), None)
+    if cluster is None:
+        return [f"release item references unknown cluster {cluster_id!r}"]
+    unsafe = [m.facts.sku_code for m in cluster.members if not m.facts.safe_to_release]
+    if unsafe:
+        return [
+            f"release item for cluster {cluster_id!r} breaches the guardrail: "
+            f"{len(unsafe)} member(s) not safe to release (e.g. {unsafe[:3]})"
+        ]
+    return []
+
+
 # ── Composed node validators ─────────────────────────────────────────────────
 def validate_diagnosis(payload: dict, run: DiagnosisRun) -> list[str]:
     """Validate a Diagnose-node output object against the run."""
@@ -155,4 +181,46 @@ def validate_diagnosis(payload: dict, run: DiagnosisRun) -> list[str]:
     violations.extend(prose_violations(payload.get("rationale", ""), run))
     violations.extend(confidence_violations(payload.get("confidence")))
     violations.extend(evidence_violations(payload.get("evidence", []), run))
+    return violations
+
+
+def validate_recommendation(payload: dict, run: DiagnosisRun) -> list[str]:
+    """Validate a Recommend-node output object: action/preconditions are prose,
+    quantified_impact is a single reference, evidence cites facts."""
+    violations: list[str] = []
+    violations.extend(cluster_id_violations(payload.get("cluster_id", ""), run))
+    violations.extend(prose_violations(payload.get("action", ""), run))
+    violations.extend(prose_violations(payload.get("preconditions", ""), run))
+    violations.extend(ref_violations(payload.get("quantified_impact"), run))
+    violations.extend(evidence_violations(payload.get("evidence", []), run))
+    return violations
+
+
+def validate_release_plan(payload: dict, run: DiagnosisRun) -> list[str]:
+    """Validate a Prioritise-node release plan: guardrail note is prose, and each
+    ranked item references a cluster + a cash-impact fact, with a prose rationale,
+    and obeys the service-level guardrail."""
+    violations: list[str] = []
+    violations.extend(prose_violations(payload.get("guardrail", ""), run))
+    ranked = payload.get("ranked", [])
+    if not ranked:
+        violations.append("release plan has no ranked items")
+    for item in ranked:
+        cluster_id = item.get("cluster_id", "")
+        violations.extend(cluster_id_violations(cluster_id, run))
+        violations.extend(ref_violations(item.get("cash_impact"), run))
+        violations.extend(prose_violations(item.get("feasibility_rationale", ""), run))
+        violations.extend(
+            cluster_release_violations(cluster_id, run, bool(item.get("excluded_for_guardrail", False)))
+        )
+    return violations
+
+
+def validate_narrative(payload: dict, run: DiagnosisRun) -> list[str]:
+    """Validate a Narrate-node board brief: headline and body are prose whose only
+    numbers are {{ref}} placeholders, and figures_cited resolve to facts."""
+    violations: list[str] = []
+    violations.extend(prose_violations(payload.get("headline", ""), run))
+    violations.extend(prose_violations(payload.get("body_markdown", ""), run))
+    violations.extend(evidence_violations(payload.get("figures_cited", []), run))
     return violations

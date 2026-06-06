@@ -9,15 +9,16 @@ that wrapping is load-bearing and is verified by the mock test.
 
 from __future__ import annotations
 
-import json
-import os
-from dataclasses import asdict
-
 from backend.facts import Cluster, DiagnosisRun
+from backend.llm import (
+    TOP_MEMBERS_PER_CLUSTER,
+    extract_tool_input,
+    facts_json,
+    get_client,
+    resolve_model,
+    wrap_refs,
+)
 
-DEFAULT_MODEL = "claude-sonnet-4-6"          # cheap dev default; swap to claude-opus-4-8 for quality
-MODEL_ENV_VAR = "LIQUIDITY_LENS_MODEL"
-TOP_MEMBERS_PER_CLUSTER = 8
 DIAGNOSE_TOOL_NAME = "submit_cluster_diagnoses"
 MAX_TOKENS = 4000
 
@@ -65,58 +66,12 @@ in root_cause and rationale; supporting fact paths go in evidence. Do not write
 any prose outside the tool call."""
 
 
-# ── Client wrapper ───────────────────────────────────────────────────────────
-def get_client():
-    """Build a real Anthropic client. Reads ANTHROPIC_API_KEY from the env
-    (loaded from .env if python-dotenv is present). Imported lazily so the unit
-    tests, which inject a mock client, don't require the anthropic package."""
-    try:
-        from dotenv import load_dotenv
-
-        load_dotenv()
-    except ImportError:
-        pass
-    import anthropic
-
-    return anthropic.Anthropic()
-
-
-def resolve_model(model: str | None) -> str:
-    return model or os.environ.get(MODEL_ENV_VAR, DEFAULT_MODEL)
-
-
-# ── FACTS serializer ─────────────────────────────────────────────────────────
-def serialize_run_for_prompt(run: DiagnosisRun, top_n: int = TOP_MEMBERS_PER_CLUSTER) -> dict:
-    """JSON-ready view of the run. ALL clusters are included (so clusters[i]
-    indices match the full run the validator resolves against), but each cluster
-    shows only its top-N members, already sorted by lever_contribution."""
-    return {
-        "run_id": run.run_id,
-        "reference_date": run.reference_date,
-        "currency": run.currency,
-        "portfolio_value_at_stake": asdict(run.portfolio_value_at_stake),
-        "clusters": [
-            {
-                "cluster_id": c.cluster_id,
-                "kind": c.kind,
-                "lever": c.lever,
-                "lever_total": c.lever_total,
-                "member_count": c.member_count,
-                "members_shown": min(top_n, len(c.members)),
-                "members": [asdict(m) for m in c.members[:top_n]],
-            }
-            for c in run.clusters
-        ],
-    }
-
-
 def build_user_message(run: DiagnosisRun, flagged: list[Cluster], top_n: int) -> str:
     sample_lines = "\n".join(
         f'  - cluster "{c.cluster_id}": showing top {min(top_n, len(c.members))} '
         f"of {c.member_count} members (sorted by impact)"
         for c in flagged
     )
-    facts_json = json.dumps(serialize_run_for_prompt(run, top_n), indent=2, default=str)
     return (
         "FACTS — one diagnosis run. Reference these paths in your placeholders and "
         "evidence; never restate their numbers as digits.\n\n"
@@ -124,7 +79,7 @@ def build_user_message(run: DiagnosisRun, flagged: list[Cluster], top_n: int) ->
         f"{sample_lines}\n\n"
         "Reason about each cluster as a whole using its cluster-level totals and this "
         "representative sample — do NOT assume the sample is the entire cluster.\n\n"
-        f"{facts_json}\n\n"
+        f"{facts_json(run, top_n)}\n\n"
         "Diagnose each cluster above — one entry per cluster_id. Every number is a "
         "{{path}} placeholder, never a digit."
     )
@@ -187,13 +142,6 @@ def build_tool(flagged: list[Cluster]) -> dict:
 
 
 # ── Node ─────────────────────────────────────────────────────────────────────
-def _extract_tool_input(response) -> dict:
-    for block in response.content:
-        if getattr(block, "type", None) == "tool_use" and getattr(block, "name", None) == DIAGNOSE_TOOL_NAME:
-            return block.input
-    raise RuntimeError(f"Diagnose: model did not return a '{DIAGNOSE_TOOL_NAME}' tool call")
-
-
 def _wrap_diagnosis(raw: dict) -> dict:
     """Turn one model-filled diagnosis into a contract-shaped REASON object.
 
@@ -205,7 +153,7 @@ def _wrap_diagnosis(raw: dict) -> dict:
         "root_cause": raw["root_cause"],
         "confidence": raw["confidence"],
         "rationale": raw["rationale"],
-        "evidence": [{"ref": path} for path in raw.get("evidence", [])],
+        "evidence": wrap_refs(raw.get("evidence", [])),
     }
 
 
@@ -239,5 +187,5 @@ def diagnose(
         messages=[{"role": "user", "content": user_message}],
     )
 
-    raw = _extract_tool_input(response)
+    raw = extract_tool_input(response, DIAGNOSE_TOOL_NAME)
     return [_wrap_diagnosis(d) for d in raw.get("diagnoses", [])]

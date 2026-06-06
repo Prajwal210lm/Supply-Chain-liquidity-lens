@@ -51,6 +51,14 @@ def test_resolve_path_valid_and_invalid():
         resolve_path(run, "portfolio_value_at_stake.nope")    # bad attribute
 
 
+def test_resolve_path_walks_into_specifics_dict():
+    # ClusterMember.specifics is a plain dict. S1 excess = 900 - (10/day * 50) = 400.
+    run = _run()
+    assert resolve_path(run, "clusters[0].members[0].specifics.excess_units") == pytest.approx(400.0)
+    with pytest.raises(Exception):
+        resolve_path(run, "clusters[0].members[0].specifics.no_such_key")
+
+
 # ── Prose violations (V1-V4) ─────────────────────────────────────────────────
 def test_prose_rejects_bare_numeral():            # V1
     assert prose_violations("Cover is 44 months.", _run()) != []
@@ -75,6 +83,15 @@ def test_prose_rejects_unresolvable_placeholder():  # V4
 def test_prose_accepts_placeholder_only():          # clean
     run = _run()
     assert prose_violations("Release AED {{portfolio_value_at_stake.total}} in cash.", run) == []
+
+
+def test_prose_allows_sku_codes_but_rejects_numbers():
+    # SKU codes embed digits in an alphanumeric word -> allowed.
+    run = _run()
+    assert prose_violations("The fast mover SR1 runs dry before resupply; see also S1.", run) == []
+    # Standalone numbers are still rejected.
+    assert prose_violations("Release AED 20,000 from slow movers.", run) != []
+    assert prose_violations("Total at stake is 146,000.", run) != []
 
 
 # ── Reference violations (V5-V8) ─────────────────────────────────────────────
