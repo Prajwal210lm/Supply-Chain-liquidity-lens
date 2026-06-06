@@ -122,6 +122,21 @@ Explicitly out of scope (cut, not deferred-by-accident):
 
 ---
 
+## Directory structure
+
+```
+liquidity-lens/
+├── frontend/        # Next.js dashboard
+├── backend/         # FastAPI server
+├── analytics/       # Deterministic Python core (no LLM)
+├── data/            # Synthetic dataset generator
+├── tests/           # Test suite (analytics core is most critical)
+├── docs/            # Two-page case study (Deloitte-style deliverable)
+└── scripts/         # Demo and utility scripts
+```
+
+---
+
 ## Roadmap
 
 **Week 1: foundation and the defensible core.**
