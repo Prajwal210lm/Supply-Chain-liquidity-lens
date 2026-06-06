@@ -57,6 +57,9 @@ class Sku:
     abc_class: str | None = None        # value class A/B/C (portfolio-relative)
     xyz_class: str | None = None        # demand-variability class X/Y/Z
     demand_cv: float | None = None      # coefficient of variation of weekly demand
+    name: str | None = None             # human-readable SKU name (citation identity)
+    category_name: str | None = None
+    service_level_target: float | None = None
 
 
 # ── Raw rows (consumed by analytics/ingest.py) ───────────────────────────────
@@ -76,6 +79,8 @@ class SkuRow:
     supplier_name: str | None = None
     supplier_country: str | None = None
     supplier_reliability: float | None = None
+    name: str | None = None
+    category_name: str | None = None
 
 
 @dataclass

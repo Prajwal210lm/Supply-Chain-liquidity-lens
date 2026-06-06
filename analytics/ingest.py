@@ -184,6 +184,9 @@ def assemble_sku(
         supplier_reliability=sku_row.supplier_reliability,
         demand_cv=cv,
         xyz_class=xyz_class(cv),
+        name=sku_row.name,
+        category_name=sku_row.category_name,
+        service_level_target=float(sku_row.service_level_target),
     )
 
 
@@ -201,8 +204,8 @@ def load_portfolio(engine, reference_date: date) -> list[Sku]:
     with engine.connect() as conn:
         sku_rows = conn.execute(text(
             """
-            SELECT s.sku_id, s.sku_code, s.unit_cost, s.selling_price,
-                   s.is_perishable, s.shelf_life_days,
+            SELECT s.sku_id, s.sku_code, s.name, s.unit_cost, s.selling_price,
+                   s.is_perishable, s.shelf_life_days, c.name AS category_name,
                    COALESCE(s.service_level_target, c.service_level_target) AS service_level
             FROM sku s
             JOIN category c ON c.category_id = s.category_id
@@ -259,6 +262,8 @@ def load_portfolio(engine, reference_date: date) -> list[Sku]:
             supplier_country=sup.country if sup else None,
             supplier_reliability=float(sup.reliability_score)
             if sup and sup.reliability_score is not None else None,
+            name=r.name,
+            category_name=r.category_name,
         )
         portfolio.append(
             assemble_sku(

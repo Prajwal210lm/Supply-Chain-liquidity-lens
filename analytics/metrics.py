@@ -246,10 +246,22 @@ def releasable_candidates(skus: list[Sku]) -> list[Sku]:
 
 
 # ── Value at stake (portfolio roll-up) ───────────────────────────────────────
-def _is_sku_dead(sku: Sku) -> bool:
+def is_sku_dead(sku: Sku) -> bool:
     if sku.recent_weekly_sales is None:
         return False
     return is_dead(sku.recent_weekly_sales, sku.dead_window_weeks)
+
+
+_is_sku_dead = is_sku_dead  # backwards-compatible alias
+
+
+def releasable_cash_contribution(sku: Sku) -> float:
+    """A SKU's contribution to the releasable-cash lever, with the dead/excess
+    de-dup applied: dead stock counts at full value, otherwise excess only.
+    Shared by ``value_at_stake`` and the Compute node so totals reconcile."""
+    if is_sku_dead(sku):
+        return dead_stock_value(sku.on_hand, sku.unit_cost)
+    return excess_value(sku.on_hand, sku.avg_weekly_demand, sku.target_coverage_days, sku.unit_cost)
 
 
 def value_at_stake(skus: list[Sku]) -> ValueAtStake:
@@ -265,12 +277,7 @@ def value_at_stake(skus: list[Sku]) -> ValueAtStake:
     stockout = 0.0
 
     for s in skus:
-        if _is_sku_dead(s):
-            releasable += dead_stock_value(s.on_hand, s.unit_cost)
-        else:
-            releasable += excess_value(
-                s.on_hand, s.avg_weekly_demand, s.target_coverage_days, s.unit_cost
-            )
+        releasable += releasable_cash_contribution(s)
         write_off += sku_expiry_writeoff(s)
         stockout += stockout_margin_loss(
             s.on_hand, s.avg_weekly_demand, s.lead_time_days, s.unit_cost, s.selling_price
