@@ -1,6 +1,9 @@
-# Analytics core + data generation. Backend/frontend deps are added in later steps.
+# Analytics core + data generation. Frontend deps are added in later steps.
 numpy
 pandas
 SQLAlchemy
 psycopg2-binary
 pytest
+# Reasoning layer (LangGraph nodes call Claude via the Anthropic SDK).
+anthropic
+python-dotenv

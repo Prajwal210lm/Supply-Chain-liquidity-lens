@@ -1,7 +1,10 @@
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
-addopts = "-v"
+addopts = "-v -m 'not integration'"
+markers = [
+    "integration: hits the real Anthropic API; skipped by default. Run with -m integration.",
+]
 
 [tool.ruff]
 line-length = 100
