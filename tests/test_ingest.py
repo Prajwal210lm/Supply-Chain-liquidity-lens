@@ -10,9 +10,10 @@ Conventions (stated):
     from both windows. Only complete prior weeks are counted.
   * avg_weekly_demand = mean of quantity_sold over the weeks present in the
     window. Zero sales rows -> 0.0.
-  * target_coverage_days = lead_time_days + z(service_level) * sqrt(lead_time).
-    (Cycle stock over the lead time plus a service-level-scaled safety buffer;
-    an explainable MVP simplification — real safety stock would use demand std.)
+  * target_coverage_days = lead + REVIEW_PERIOD + z(service_level)*sqrt(lead):
+    the periodic-review order-up-to level (reorder point + one replenishment
+    cycle of cover). REVIEW_PERIOD is a named policy parameter; without it the
+    target is just a reorder point and flags normal post-replenishment stock.
 """
 
 import math
@@ -23,6 +24,7 @@ import pytest
 from analytics.ingest import (
     DEAD_STOCK_WINDOW_WEEKS,
     DEMAND_WINDOW_WEEKS,
+    REVIEW_PERIOD_DAYS,
     assemble_sku,
     compute_avg_weekly_demand,
     compute_on_hand,
@@ -44,6 +46,7 @@ REF = date(2025, 6, 2)  # a Monday; "today" for these fixtures
 def test_window_constants_are_named_and_distinct():
     assert DEMAND_WINDOW_WEEKS == 52
     assert DEAD_STOCK_WINDOW_WEEKS == 26
+    assert REVIEW_PERIOD_DAYS == 45  # replenishment cycle in the target formula
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -112,9 +115,9 @@ def test_days_to_expiry():
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# target coverage = lead + z(service_level) * sqrt(lead).
-#   0.95 -> z 1.6449 ; lead 64 -> sqrt 8 -> safety 13.1592 -> target 77.1592
-#   0.90 -> z 1.2816 ; lead 36 -> sqrt 6 -> safety  7.6896 -> target 43.6896
+# target coverage = lead + REVIEW_PERIOD(45) + z(service_level) * sqrt(lead).
+#   0.95 -> z 1.6449 ; lead 64 -> sqrt 8 -> safety 13.1592 -> target 122.1592
+#   0.90 -> z 1.2816 ; lead 36 -> sqrt 6 -> safety  7.6896 -> target  88.6896
 # ─────────────────────────────────────────────────────────────────────────────
 def test_service_level_z_lookup():
     assert service_level_z(0.95) == pytest.approx(1.6449)
@@ -122,9 +125,9 @@ def test_service_level_z_lookup():
 
 
 def test_target_coverage_from_lead_and_service_level():
-    assert compute_target_coverage_days(64, 0.95) == pytest.approx(64 + 1.6449 * 8)
-    assert compute_target_coverage_days(64, 0.95) == pytest.approx(77.1592)
-    assert compute_target_coverage_days(36, 0.90) == pytest.approx(43.6896)
+    assert compute_target_coverage_days(64, 0.95) == pytest.approx(64 + 45 + 1.6449 * 8)
+    assert compute_target_coverage_days(64, 0.95) == pytest.approx(122.1592)
+    assert compute_target_coverage_days(36, 0.90) == pytest.approx(88.6896)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -150,7 +153,7 @@ def test_assemble_sku_multi_batch():
     assert sku.selling_price == pytest.approx(130)
     assert sku.is_perishable is True
     assert sku.lead_time_days == pytest.approx(64)
-    assert sku.target_coverage_days == pytest.approx(77.1592)
+    assert sku.target_coverage_days == pytest.approx(122.1592)  # 64 + 45 + 1.6449*8
 
     # Batches assembled with calendar days-to-expiry, order preserved.
     assert len(sku.batches) == 2
@@ -178,7 +181,7 @@ def test_assemble_sku_zero_sales_rows():
 
     assert sku.on_hand == pytest.approx(50.0)
     assert sku.avg_weekly_demand == pytest.approx(0.0)
-    assert sku.target_coverage_days == pytest.approx(43.6896)  # 36 + 1.2816*6
+    assert sku.target_coverage_days == pytest.approx(88.6896)  # 36 + 45 + 1.2816*6
     assert sku.recent_weekly_sales == []
     # No demand -> coverage is undefined, and no movement -> dead.
     assert days_of_cover(sku.on_hand, sku.avg_weekly_demand) is None

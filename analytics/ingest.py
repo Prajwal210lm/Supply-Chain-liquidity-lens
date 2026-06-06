@@ -10,9 +10,10 @@ Conventions:
     cycle). Dead-stock no-movement window = DEAD_STOCK_WINDOW_WEEKS (default 26).
   * The current partial week (the week containing reference_date) is EXCLUDED
     from both windows; only complete prior weeks are counted.
-  * target_coverage_days = lead_time_days + z(service_level) * sqrt(lead_time):
-    cycle stock over the lead time plus a service-level-scaled safety buffer.
-    An explainable MVP simplification — real safety stock would use demand std.
+  * target_coverage_days = lead + REVIEW_PERIOD_DAYS + z(service_level)*sqrt(lead):
+    the periodic-review order-up-to level (reorder point plus one replenishment
+    cycle of cover). Safety stock is a service-level-scaled simplification — a
+    fuller model would use demand standard deviation.
 """
 
 from __future__ import annotations
@@ -22,9 +23,10 @@ from datetime import date, timedelta
 
 from analytics.models import Batch, BatchRow, SalesRow, Sku, SkuRow
 
-# Named windows — NOT magic numbers.
+# Named windows / policy parameters — NOT magic numbers.
 DEMAND_WINDOW_WEEKS = 52      # demand baseline: a full seasonal cycle
 DEAD_STOCK_WINDOW_WEEKS = 26  # no-movement window for dead-stock detection
+REVIEW_PERIOD_DAYS = 45       # replenishment cycle in the target-coverage formula
 
 # Standard one-sided normal z-scores for service-level safety stock.
 SERVICE_LEVEL_Z = {
@@ -101,9 +103,17 @@ def service_level_z(service_level: float) -> float:
 
 
 def compute_target_coverage_days(lead_time_days: float, service_level: float) -> float:
+    """Periodic-review order-up-to level, in days of cover.
+
+    = cycle stock (lead time) + one replenishment cycle (REVIEW_PERIOD_DAYS)
+      + service-level safety buffer (z * sqrt(lead)).
+
+    The review-period term is what stops normal post-replenishment stock from
+    being flagged as excess; without it this collapses to a reorder point.
+    """
     z = service_level_z(service_level)
     safety_days = z * math.sqrt(lead_time_days)
-    return lead_time_days + safety_days
+    return lead_time_days + REVIEW_PERIOD_DAYS + safety_days
 
 
 # ── Assembly ─────────────────────────────────────────────────────────────────
