@@ -1,14 +1,19 @@
 """In-memory input contracts for the analytics core.
 
-These dataclasses are plain inputs — the core never reads the database. The
-ingestion layer (later) is responsible for loading rows into these shapes.
+Two families live here:
+  * Assembled inputs the metric functions consume: ``Sku`` and ``Batch``.
+  * Raw-row inputs the ingestion layer consumes: ``SkuRow``, ``SalesRow``,
+    ``BatchRow`` — plain shapes mirroring database rows, so ingestion can be
+    unit-tested without a database.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import date
 
 
+# ── Assembled inputs (consumed by analytics/metrics.py) ──────────────────────
 @dataclass
 class Batch:
     """One inventory lot. ``days_to_expiry`` is measured from the reference date.
@@ -42,3 +47,31 @@ class Sku:
     batches: list[Batch] = field(default_factory=list)
     recent_weekly_sales: list[float] | None = None
     dead_window_weeks: int = 26
+
+
+# ── Raw rows (consumed by analytics/ingest.py) ───────────────────────────────
+@dataclass
+class SkuRow:
+    """A SKU master row, with the service level already resolved (SKU override
+    or category default) and the primary supplier's lead time attached."""
+
+    sku_code: str
+    unit_cost: float
+    selling_price: float
+    is_perishable: bool
+    shelf_life_days: int | None
+    service_level_target: float
+    lead_time_days: int
+
+
+@dataclass
+class SalesRow:
+    week_start_date: date
+    quantity_sold: float
+
+
+@dataclass
+class BatchRow:
+    quantity_on_hand: float
+    received_date: date
+    expiry_date: date | None
