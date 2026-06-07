@@ -48,6 +48,9 @@ yarn-error.log*
 .pnpm-debug.log*
 package-lock.json
 
+# Generated data
+data/last_diagnosis.json
+
 # OS
 .DS_Store
 Thumbs.db

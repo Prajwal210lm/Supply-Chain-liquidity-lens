@@ -19,6 +19,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.encoders import jsonable_encoder
+from fastapi.middleware.cors import CORSMiddleware
 
 from backend.contract import prose_violations, render_prose
 from backend.facts import DiagnosisRun
@@ -26,6 +27,13 @@ from backend.graph import DiagnosisState, run_diagnosis
 from backend.llm import get_client, resolve_model
 
 app = FastAPI(title="Liquidity Lens")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Most recent DiagnosisRun, stored after each /api/diagnose call.
 _last_run: DiagnosisRun | None = None

@@ -1,15 +1,13 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import {
-  DiagnoseResponse,
-  AskWhyResponse,
-  runDiagnosis,
-  fetchAskWhy,
-} from "@/lib/api";
+import { DiagnoseResponse, runDiagnosis } from "@/lib/api";
 import RunButton from "@/components/RunButton";
 import SummaryCards from "@/components/SummaryCards";
+import ValueBreakdown from "@/components/ValueBreakdown";
 import ClusterTable from "@/components/ClusterTable";
+import SupplierAnalysis from "@/components/SupplierAnalysis";
+import CategoryBreakdown from "@/components/CategoryBreakdown";
 import BoardBrief from "@/components/BoardBrief";
 import AskWhyPanel from "@/components/AskWhyPanel";
 import ViolationsBar from "@/components/ViolationsBar";
@@ -17,23 +15,16 @@ import ViolationsBar from "@/components/ViolationsBar";
 type RunStatus = "idle" | "loading" | "done" | "error";
 
 export default function Home() {
-  // Pipeline state
   const [status, setStatus] = useState<RunStatus>("idle");
   const [runError, setRunError] = useState<string | null>(null);
   const [data, setData] = useState<DiagnoseResponse | null>(null);
-
-  // Ask-why state
   const [selectedSku, setSelectedSku] = useState<string | null>(null);
-  const [askWhyLoading, setAskWhyLoading] = useState(false);
-  const [askWhyResult, setAskWhyResult] = useState<AskWhyResponse | null>(null);
-  const [askWhyError, setAskWhyError] = useState<string | null>(null);
 
   const handleRunDiagnosis = useCallback(async () => {
     setStatus("loading");
     setRunError(null);
     setData(null);
     setSelectedSku(null);
-    setAskWhyResult(null);
     try {
       const result = await runDiagnosis();
       setData(result);
@@ -45,33 +36,13 @@ export default function Home() {
   }, []);
 
   const handleSkuClick = useCallback(
-    async (skuCode: string) => {
-      if (skuCode === selectedSku) {
-        setSelectedSku(null);
-        setAskWhyResult(null);
-        return;
-      }
-      setSelectedSku(skuCode);
-      setAskWhyResult(null);
-      setAskWhyError(null);
-      setAskWhyLoading(true);
-      try {
-        const result = await fetchAskWhy(skuCode);
-        setAskWhyResult(result);
-      } catch (err) {
-        setAskWhyError(err instanceof Error ? err.message : String(err));
-      } finally {
-        setAskWhyLoading(false);
-      }
+    (skuCode: string) => {
+      setSelectedSku((prev) => (prev === skuCode ? null : skuCode));
     },
-    [selectedSku]
+    []
   );
 
-  const handleClosePanel = useCallback(() => {
-    setSelectedSku(null);
-    setAskWhyResult(null);
-    setAskWhyError(null);
-  }, []);
+  const handleClosePanel = useCallback(() => setSelectedSku(null), []);
 
   return (
     <div className="min-h-screen bg-white pb-16">
@@ -92,7 +63,6 @@ export default function Home() {
 
       {/* Main content */}
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-10">
-        {/* Idle state */}
         {status === "idle" && (
           <div className="text-center py-20 text-gray-400">
             <p className="text-sm">
@@ -102,29 +72,29 @@ export default function Home() {
           </div>
         )}
 
-        {/* Loading */}
         {status === "loading" && (
           <div className="text-center py-20 text-gray-400 text-sm">
             Running pipeline — this takes 30–60 seconds…
           </div>
         )}
 
-        {/* Error */}
         {status === "error" && runError && (
           <div className="border border-red-200 bg-red-50 p-5 text-sm text-red-700">
             <strong>Pipeline error:</strong> {runError}
           </div>
         )}
 
-        {/* Results */}
         {status === "done" && data && (
           <>
             <SummaryCards vas={data.value_at_stake} clusters={data.clusters} />
+            <ValueBreakdown vas={data.value_at_stake} />
             <ClusterTable
               clusters={data.clusters}
               onSkuClick={handleSkuClick}
               selectedSku={selectedSku}
             />
+            <SupplierAnalysis clusters={data.clusters} />
+            <CategoryBreakdown clusters={data.clusters} />
             <BoardBrief
               headline={data.brief.headline}
               bodyMarkdown={data.brief.body_markdown}
@@ -133,13 +103,11 @@ export default function Home() {
         )}
       </main>
 
-      {/* Ask-why panel */}
-      {status === "done" && (
+      {/* SKU detail panel */}
+      {status === "done" && data && (
         <AskWhyPanel
           skuCode={selectedSku}
-          result={askWhyResult}
-          loading={askWhyLoading}
-          error={askWhyError}
+          clusters={data.clusters}
           onClose={handleClosePanel}
         />
       )}

@@ -1,6 +1,7 @@
 "use client";
 
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { ReactNode } from "react";
 
 export default function BoardBrief({
@@ -21,7 +22,34 @@ export default function BoardBrief({
         </h1>
         <div className="prose-brief">
           <Markdown
+            remarkPlugins={[remarkGfm]}
             components={{
+              table: ({ children }: { children?: ReactNode }) => (
+                <div className="overflow-x-auto my-4">
+                  <table className="w-full text-sm border-collapse border border-gray-200">
+                    {children}
+                  </table>
+                </div>
+              ),
+              thead: ({ children }: { children?: ReactNode }) => (
+                <thead className="bg-gray-50">{children}</thead>
+              ),
+              tbody: ({ children }: { children?: ReactNode }) => (
+                <tbody className="divide-y divide-gray-100">{children}</tbody>
+              ),
+              tr: ({ children }: { children?: ReactNode }) => (
+                <tr className="border-b border-gray-100">{children}</tr>
+              ),
+              th: ({ children }: { children?: ReactNode }) => (
+                <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 border border-gray-200">
+                  {children}
+                </th>
+              ),
+              td: ({ children }: { children?: ReactNode }) => (
+                <td className="px-4 py-2 text-sm text-gray-700 border border-gray-200">
+                  {children}
+                </td>
+              ),
               h2: ({ children }: { children?: ReactNode }) => (
                 <h2 className="text-sm font-semibold uppercase tracking-widest text-gray-500 mt-6 mb-2">
                   {children}
