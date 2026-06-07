@@ -78,7 +78,7 @@ def test_health():
 
 def test_diagnose_response_shape():
     with patch("backend.api.run_diagnosis", return_value=_mock_state()):
-        r = client.post("/api/diagnose")
+        r = client.post("/api/diagnose?fresh=true")
 
     assert r.status_code == 200
     body = r.json()

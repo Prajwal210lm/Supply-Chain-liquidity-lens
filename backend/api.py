@@ -11,11 +11,13 @@ resolve fact paths without re-running the pipeline.
 from __future__ import annotations
 
 import dataclasses
+import json
 import os
 from dataclasses import asdict
+from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.encoders import jsonable_encoder
 
 from backend.contract import prose_violations, render_prose
@@ -27,6 +29,8 @@ app = FastAPI(title="Liquidity Lens")
 
 # Most recent DiagnosisRun, stored after each /api/diagnose call.
 _last_run: DiagnosisRun | None = None
+
+_CACHE_PATH = Path(__file__).parent.parent / "data" / "last_diagnosis.json"
 
 
 # ── Serialization helpers ─────────────────────────────────────────────────────
@@ -158,9 +162,16 @@ def health() -> dict:
 
 
 @app.post("/api/diagnose")
-def diagnose_endpoint() -> dict:
-    """Run the full six-node pipeline and return the board brief with supporting data."""
+def diagnose_endpoint(fresh: bool = Query(default=False)) -> dict:
+    """Run the full six-node pipeline and return the board brief with supporting data.
+
+    Pass ?fresh=true to force a live pipeline run even when a cached response exists.
+    Without ?fresh=true, returns the cached response from data/last_diagnosis.json if present.
+    """
     global _last_run
+
+    if not fresh and _CACHE_PATH.exists():
+        return json.loads(_CACHE_PATH.read_text(encoding="utf-8"))
 
     from dotenv import load_dotenv
     from sqlalchemy import create_engine
@@ -176,7 +187,10 @@ def diagnose_endpoint() -> dict:
     state = run_diagnosis(engine, REFERENCE_DATE)
     _last_run = state["diagnosis_run"]
 
-    return jsonable_encoder(_build_response(state))
+    response = jsonable_encoder(_build_response(state))
+    _CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _CACHE_PATH.write_text(json.dumps(response, ensure_ascii=False, indent=2), encoding="utf-8")
+    return response
 
 
 @app.post("/api/ask-why/{sku_code}")
