@@ -1,4 +1,4 @@
-# Liquidity Lens
+# Suppply Chain Liquidity Lens
 
 AI-powered working-capital diagnostic for GCC FMCG/pharma distributors. Reads raw inventory, sales, and supplier data. Produces a consulting-grade value-at-stake assessment with a board-ready memo.
 
