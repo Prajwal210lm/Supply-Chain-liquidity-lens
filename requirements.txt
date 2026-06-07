@@ -7,3 +7,8 @@ pytest
 # Reasoning layer (LangGraph nodes call Claude via the Anthropic SDK).
 anthropic
 python-dotenv
+# LangGraph state machine + FastAPI server.
+langgraph
+fastapi
+uvicorn
+httpx
