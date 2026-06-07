@@ -28,6 +28,7 @@ from analytics.models import Batch, BatchRow, SalesRow, Sku, SkuRow
 DEMAND_WINDOW_WEEKS = 52      # demand baseline: a full seasonal cycle
 DEAD_STOCK_WINDOW_WEEKS = 26  # no-movement window for dead-stock detection
 REVIEW_PERIOD_DAYS = 45       # replenishment cycle in the target-coverage formula
+REFERENCE_DATE = date(2025, 6, 2)  # fixed "today" matching the synthetic dataset
 
 # Standard one-sided normal z-scores for service-level safety stock.
 SERVICE_LEVEL_Z = {

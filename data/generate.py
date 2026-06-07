@@ -24,9 +24,10 @@ import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine, text
 
+from analytics.ingest import REFERENCE_DATE  # single source of truth
+
 # ── Constants ──────────────────────────────────────────────────────────────────
-SEED           = 42
-REFERENCE_DATE = date(2025, 6, 2)   # "today" — never use date.today()
+SEED   = 42
 N_WEEKS        = 104                 # weeks of sales history (~2 years)
 
 # Pool sizes (sum = N_SKUS)

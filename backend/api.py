@@ -13,7 +13,6 @@ from __future__ import annotations
 import dataclasses
 import os
 from dataclasses import asdict
-from datetime import date
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
@@ -171,8 +170,10 @@ def diagnose_endpoint() -> dict:
     if not database_url:
         raise HTTPException(status_code=500, detail="DATABASE_URL not configured")
 
+    from analytics.ingest import REFERENCE_DATE
+
     engine = create_engine(database_url)
-    state = run_diagnosis(engine, date.today())
+    state = run_diagnosis(engine, REFERENCE_DATE)
     _last_run = state["diagnosis_run"]
 
     return jsonable_encoder(_build_response(state))
