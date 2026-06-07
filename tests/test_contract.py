@@ -89,6 +89,8 @@ def test_prose_allows_sku_codes_but_rejects_numbers():
     # SKU codes embed digits in an alphanumeric word -> allowed.
     run = _run()
     assert prose_violations("The fast mover SR1 runs dry before resupply; see also S1.", run) == []
+    # Hyphenated SKU codes (e.g. real dataset: "SL-0383", "PE-0485") -> allowed.
+    assert prose_violations("Slow mover SL-0383 carries excess; PE-0485 faces expiry risk.", run) == []
     # Standalone numbers are still rejected.
     assert prose_violations("Release AED 20,000 from slow movers.", run) != []
     assert prose_violations("Total at stake is 146,000.", run) != []

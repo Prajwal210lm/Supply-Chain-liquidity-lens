@@ -63,9 +63,11 @@ def prose_violations(text: str, run: DiagnosisRun) -> list[str]:
 
     # Reject standalone numbers (a token that STARTS with a digit, e.g. "20,000",
     # "146,000", "12%", "2x") but allow identifiers where digits are embedded in an
-    # alphanumeric word starting with a letter (e.g. SKU codes "SR1", "S1").
+    # alphanumeric word starting with a letter (e.g. SKU codes "SR1", "S1", "SL-0383").
+    # Hyphens that join two alphanumeric runs are kept inside the same token so that
+    # "SL-0383" is treated as one identifier, not ["SL", "0383"].
     # Placeholders are blanked first so their paths (which contain digits) aren't seen.
-    tokens = re.findall(r"[0-9A-Za-z]+", PLACEHOLDER_RE.sub(" ", text))
+    tokens = re.findall(r"[0-9A-Za-z]+(?:-[0-9A-Za-z]+)*", PLACEHOLDER_RE.sub(" ", text))
     if any(token[0].isdigit() for token in tokens):
         violations.append(f"prose contains a bare numeral (use a {{{{ref}}}} placeholder): {text!r}")
 
