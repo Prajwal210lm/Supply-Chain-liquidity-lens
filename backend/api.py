@@ -22,7 +22,13 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.contract import prose_violations, render_prose
-from backend.facts import DiagnosisRun
+from backend.facts import (
+    Cluster,
+    ClusterMember,
+    DiagnosisRun,
+    SkuFacts,
+    ValueAtStakeFacts,
+)
 from backend.graph import DiagnosisState, run_diagnosis
 from backend.llm import get_client, resolve_model
 
@@ -30,7 +36,7 @@ app = FastAPI(title="Liquidity Lens")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -39,6 +45,44 @@ app.add_middleware(
 _last_run: DiagnosisRun | None = None
 
 _CACHE_PATH = Path(__file__).parent.parent / "data" / "last_diagnosis.json"
+
+
+# ── Cache reconstruction ──────────────────────────────────────────────────────
+
+def _reconstruct_run_from_cache(cached: dict) -> DiagnosisRun:
+    """Build a DiagnosisRun from the cached JSON so ask-why works without a live run.
+
+    Uses only top_members (the 20 stored per cluster); ask-why 404s for SKUs
+    outside the top 20, which is expected behaviour.
+    """
+    from analytics.ingest import REFERENCE_DATE  # noqa: PLC0415
+
+    vas = ValueAtStakeFacts(**cached["value_at_stake"])
+    clusters = []
+    for c in cached["clusters"]:
+        members = [
+            ClusterMember(
+                facts=SkuFacts(**m["facts"]),
+                lever_contribution=float(m["lever_contribution"]),
+                specifics=m["specifics"],
+            )
+            for m in c["top_members"]
+        ]
+        clusters.append(Cluster(
+            cluster_id=c["cluster_id"],
+            kind=c["kind"],
+            lever=c["lever"],
+            member_count=c["member_count"],
+            lever_total=float(c["lever_total"]),
+            members=members,
+        ))
+    return DiagnosisRun(
+        run_id="cached",
+        reference_date=REFERENCE_DATE,
+        currency="AED",
+        portfolio_value_at_stake=vas,
+        clusters=clusters,
+    )
 
 
 # ── Serialization helpers ─────────────────────────────────────────────────────
@@ -179,7 +223,9 @@ def diagnose_endpoint(fresh: bool = Query(default=False)) -> dict:
     global _last_run
 
     if not fresh and _CACHE_PATH.exists():
-        return json.loads(_CACHE_PATH.read_text(encoding="utf-8"))
+        cached = json.loads(_CACHE_PATH.read_text(encoding="utf-8"))
+        _last_run = _reconstruct_run_from_cache(cached)
+        return cached
 
     from dotenv import load_dotenv
     from sqlalchemy import create_engine
