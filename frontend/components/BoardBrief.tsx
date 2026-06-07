@@ -3,6 +3,7 @@
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { ReactNode } from "react";
+import { sectionHeader } from "@/components/SummaryCards";
 
 export default function BoardBrief({
   headline,
@@ -13,14 +14,12 @@ export default function BoardBrief({
 }) {
   return (
     <section>
-      <h2 className="text-base font-semibold text-gray-500 uppercase tracking-widest mb-4">
-        Board Brief
-      </h2>
-      <div className="border border-gray-200 bg-white px-8 py-7">
+      <h2 className={sectionHeader}>Board Brief</h2>
+      <div className="bg-gray-50 border border-gray-200 border-l-4 border-l-blue-800 px-8 py-7">
         <h1 className="text-xl font-bold text-gray-900 mb-5 leading-snug">
           {headline}
         </h1>
-        <div className="prose-brief">
+        <div>
           <Markdown
             remarkPlugins={[remarkGfm]}
             components={{
@@ -32,7 +31,7 @@ export default function BoardBrief({
                 </div>
               ),
               thead: ({ children }: { children?: ReactNode }) => (
-                <thead className="bg-gray-50">{children}</thead>
+                <thead className="bg-white">{children}</thead>
               ),
               tbody: ({ children }: { children?: ReactNode }) => (
                 <tbody className="divide-y divide-gray-100">{children}</tbody>
@@ -41,7 +40,7 @@ export default function BoardBrief({
                 <tr className="border-b border-gray-100">{children}</tr>
               ),
               th: ({ children }: { children?: ReactNode }) => (
-                <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 border border-gray-200">
+                <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 border border-gray-200 bg-gray-50">
                   {children}
                 </th>
               ),
@@ -51,7 +50,7 @@ export default function BoardBrief({
                 </td>
               ),
               h2: ({ children }: { children?: ReactNode }) => (
-                <h2 className="text-sm font-semibold uppercase tracking-widest text-gray-500 mt-6 mb-2">
+                <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400 border-b border-gray-200 pb-1 mt-6 mb-2">
                   {children}
                 </h2>
               ),
@@ -75,7 +74,9 @@ export default function BoardBrief({
                   {children}
                 </ol>
               ),
-              li: ({ children }: { children?: ReactNode }) => <li className="leading-relaxed">{children}</li>,
+              li: ({ children }: { children?: ReactNode }) => (
+                <li className="leading-relaxed">{children}</li>
+              ),
               strong: ({ children }: { children?: ReactNode }) => (
                 <strong className="font-semibold text-gray-900">{children}</strong>
               ),

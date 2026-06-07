@@ -47,7 +47,7 @@ export default function ValueBreakdown({ vas }: { vas: ValueAtStake }) {
   return (
     <section>
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-base font-semibold text-gray-500 uppercase tracking-widest">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400">
           Value Breakdown
         </h2>
         {/* Legend */}

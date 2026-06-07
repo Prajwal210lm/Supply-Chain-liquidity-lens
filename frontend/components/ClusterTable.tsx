@@ -10,6 +10,7 @@ import {
   fmtFull,
   fmtDecimal,
 } from "@/lib/api";
+import { sectionHeader } from "@/components/SummaryCards";
 
 // ── Per-cluster column configuration ─────────────────────────────────────────
 
@@ -41,12 +42,14 @@ function ClusterSection({
   cluster,
   onSkuClick,
   selectedSku,
+  defaultOpen,
 }: {
   cluster: Cluster;
   onSkuClick: (sku: string) => void;
   selectedSku: string | null;
+  defaultOpen: boolean;
 }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(defaultOpen);
   const cover = COVER_CONFIG[cluster.cluster_id];
   const label = CLUSTER_LABELS[cluster.cluster_id];
   const lever = LEVER_LABELS[cluster.lever] ?? cluster.lever;
@@ -158,16 +161,15 @@ export default function ClusterTable({
 }) {
   return (
     <section>
-      <h2 className="text-base font-semibold text-gray-500 uppercase tracking-widest mb-4">
-        Flagged Clusters
-      </h2>
+      <h2 className={sectionHeader}>Flagged Clusters</h2>
       <div className="space-y-3">
-        {clusters.map((c) => (
+        {clusters.map((c, i) => (
           <ClusterSection
             key={c.cluster_id}
             cluster={c}
             onSkuClick={onSkuClick}
             selectedSku={selectedSku}
+            defaultOpen={i === 0}
           />
         ))}
       </div>

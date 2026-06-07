@@ -1,6 +1,7 @@
 "use client";
 
 import { Cluster, CLUSTER_LABELS, fmtFull } from "@/lib/api";
+import { sectionHeader } from "@/components/SummaryCards";
 
 type SupplierRow = {
   supplier: string;
@@ -53,9 +54,7 @@ export default function SupplierAnalysis({ clusters }: { clusters: Cluster[] }) 
 
   return (
     <section>
-      <h2 className="text-base font-semibold text-gray-500 uppercase tracking-widest mb-4">
-        Supplier Exposure
-      </h2>
+      <h2 className={sectionHeader}>Supplier Exposure</h2>
       <div className="border border-gray-200">
         <table className="w-full text-sm border-collapse">
           <thead>

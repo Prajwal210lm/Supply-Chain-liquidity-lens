@@ -2,6 +2,7 @@
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Cluster, fmtFull, fmtCompact } from "@/lib/api";
+import { sectionHeader } from "@/components/SummaryCards";
 
 // Muted, professional palette — desaturated slate/teal/stone tones
 const COLORS = [
@@ -68,9 +69,7 @@ export default function CategoryBreakdown({ clusters }: { clusters: Cluster[] })
 
   return (
     <section>
-      <h2 className="text-base font-semibold text-gray-500 uppercase tracking-widest mb-4">
-        Category Breakdown
-      </h2>
+      <h2 className={sectionHeader}>Category Breakdown</h2>
       <div className="border border-gray-200 bg-white flex items-center gap-8 px-6 py-4">
         {/* Donut chart */}
         <div className="flex-shrink-0" style={{ width: 200, height: 200 }}>
