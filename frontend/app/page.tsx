@@ -235,9 +235,23 @@ export default function Home() {
               Working-Capital Diagnostic · GCC Distributor
             </p>
           </div>
-          {status !== "idle" && (
-            <RunButton status={status} onClick={handleRunDiagnosis} variant="ghost" />
-          )}
+          <div className="flex items-center gap-3">
+            {status === "done" && (
+              <button
+                onClick={() => { setData(null); setStatus("idle"); }}
+                className="flex items-center gap-1.5 text-sm text-white/60 hover:text-white
+                           border border-white/20 rounded-full px-4 py-1.5 transition-colors duration-150"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M19 12H5M12 5l-7 7 7 7" />
+                </svg>
+                Overview
+              </button>
+            )}
+            {status !== "idle" && (
+              <RunButton status={status} onClick={handleRunDiagnosis} variant="ghost" />
+            )}
+          </div>
         </div>
       </header>
 
