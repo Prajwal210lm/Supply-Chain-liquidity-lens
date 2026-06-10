@@ -206,6 +206,7 @@ export default function Home() {
       const result = await runDiagnosis();
       setData(result);
       setStatus("done");
+      window.scrollTo(0, 0);
     } catch (err) {
       setRunError(err instanceof Error ? err.message : String(err));
       setStatus("error");
