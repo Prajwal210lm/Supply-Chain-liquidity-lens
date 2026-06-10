@@ -27,13 +27,21 @@ function findSku(clusters: Cluster[], skuCode: string): FoundSku[] {
   return results;
 }
 
+const CLUSTER_STYLE: Record<string, { bg: string; text: string }> = {
+  slow_excess: { bg: "#0596691a", text: "#059669" },
+  expiry:      { bg: "#D977061a", text: "#D97706" },
+  stockout:    { bg: "#DC26261a", text: "#DC2626" },
+};
+
 // ── Key-value row ─────────────────────────────────────────────────────────────
 
 function KV({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex justify-between gap-4 py-1.5 border-b border-gray-100 last:border-0">
-      <span className="text-xs text-gray-400 flex-shrink-0 w-44">{label}</span>
-      <span className="text-xs text-gray-800 text-right font-medium">{value}</span>
+      <span className="text-xs uppercase tracking-wider text-[var(--text-secondary)] flex-shrink-0 w-44">
+        {label}
+      </span>
+      <span className="font-mono text-xs text-[var(--text-primary)] text-right">{value}</span>
     </div>
   );
 }
@@ -41,7 +49,7 @@ function KV({ label, value }: { label: string; value: React.ReactNode }) {
 function FactsBlock({ facts }: { facts: SkuFacts }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
+      <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-secondary)] mb-2">
         SKU Facts
       </p>
       <KV label="Category" value={facts.category_name ?? "—"} />
@@ -68,7 +76,7 @@ function SpecificsBlock({ specifics }: { specifics: Record<string, unknown> }) {
   if (entries.length === 0) return null;
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
+      <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-secondary)] mb-2">
         Cluster Specifics
       </p>
       {entries.map(([k, v]) => (
@@ -132,86 +140,113 @@ export default function AskWhyPanel({
     setAiLoading(false);
   }
 
-  if (!skuCode) return null;
-
-  const found = findSku(clusters, skuCode);
+  const isOpen = skuCode !== null;
+  const found = skuCode ? findSku(clusters, skuCode) : [];
 
   return (
     <>
-      {/* Dim backdrop */}
-      <div className="fixed inset-0 bg-black/20 z-40" onClick={onClose} />
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 z-40 transition-opacity duration-200"
+        style={{
+          background: "rgba(0,0,0,0.2)",
+          opacity: isOpen ? 1 : 0,
+          pointerEvents: isOpen ? "auto" : "none",
+        }}
+        onClick={onClose}
+      />
 
-      {/* Panel */}
-      <aside className="fixed top-0 right-0 h-full w-[440px] bg-white shadow-2xl z-50 flex flex-col border-l border-gray-200">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200 flex-shrink-0">
+      {/* Slide-in panel */}
+      <aside
+        className="fixed top-0 right-0 h-full w-full sm:w-[480px] z-50 flex flex-col shadow-2xl rounded-l-2xl overflow-hidden"
+        style={{
+          transform: isOpen ? "translateX(0)" : "translateX(100%)",
+          transition: "transform 0.25s ease-out",
+          background: "#ffffff",
+        }}
+      >
+        {/* Dark header */}
+        <div
+          className="flex items-center justify-between px-6 py-5 flex-shrink-0"
+          style={{ background: "var(--navy-900)" }}
+        >
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-0.5">
+            <p className="text-xs font-semibold uppercase tracking-widest mb-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>
               SKU Detail
             </p>
-            <p className="font-mono text-sm font-bold text-gray-900">{skuCode}</p>
+            <p className="font-mono text-sm font-bold text-white">{skuCode ?? "—"}</p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-700 text-xl leading-none"
+            className="transition-opacity hover:opacity-100 opacity-60"
+            style={{ color: "white" }}
             aria-label="Close"
           >
-            ✕
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              <path d="M3 3l10 10M13 3L3 13" />
+            </svg>
           </button>
         </div>
 
         {/* Scrollable body */}
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
-          {found.length === 0 ? (
-            <p className="text-sm text-gray-400 italic">SKU not found in top members.</p>
-          ) : (
-            found.map(({ member, clusterId, clusterLabel }) => (
+          {isOpen && found.length === 0 && (
+            <p className="text-sm text-[var(--text-secondary)] italic">SKU not found in top members.</p>
+          )}
+
+          {isOpen && found.map(({ member, clusterId, clusterLabel }) => {
+            const style = CLUSTER_STYLE[clusterId] ?? { bg: "#6475801a", text: "#64748B" };
+            return (
               <div key={clusterId} className="space-y-4">
-                {/* Cluster badge */}
                 <div className="flex items-center gap-2">
-                  <span className="text-xs px-2 py-0.5 border border-gray-200 bg-gray-50 text-gray-600">
+                  <span
+                    className="text-xs px-2.5 py-0.5 rounded-full font-semibold"
+                    style={{ backgroundColor: style.bg, color: style.text }}
+                  >
                     {clusterLabel}
                   </span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-[var(--text-secondary)]">
                     {fmtFull(member.lever_contribution)} AED at stake
                   </span>
                 </div>
-
                 <FactsBlock facts={member.facts} />
                 <SpecificsBlock specifics={member.specifics} />
               </div>
-            ))
-          )}
+            );
+          })}
 
-          {/* AI explanation result */}
           {aiResult && (
-            <div className="border border-gray-200 bg-gray-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
+            <div
+              className="rounded-xl p-4 border"
+              style={{ background: "rgba(15,26,46,0.03)", borderColor: "rgba(27,58,92,0.15)" }}
+            >
+              <p className="text-xs font-semibold uppercase tracking-widest text-[var(--navy-700)] mb-2">
                 AI Explanation
               </p>
-              <p className="text-sm text-gray-800 leading-relaxed">{aiResult}</p>
+              <p className="text-sm text-[var(--text-primary)] leading-relaxed">{aiResult}</p>
             </div>
           )}
 
           {aiUnavailable && (
-            <p className="text-xs text-gray-400 italic">
+            <p className="text-xs text-[var(--text-secondary)] italic">
               Run a fresh diagnosis to enable AI explanations.
             </p>
           )}
         </div>
 
-        {/* Footer — Ask AI button */}
-        <div className="flex-shrink-0 px-6 py-4 border-t border-gray-200">
+        {/* Ask AI footer */}
+        <div className="flex-shrink-0 px-6 py-4 border-t border-gray-100">
           <button
             onClick={handleAskAi}
-            disabled={aiLoading}
-            className="w-full px-4 py-2 bg-gray-900 text-white text-sm font-medium tracking-wide
-                       uppercase hover:bg-gray-700 transition-colors
+            disabled={aiLoading || !isOpen}
+            className="w-full px-4 py-2.5 text-sm font-semibold uppercase tracking-wide text-white
+                       rounded-lg transition-all duration-200
                        disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ background: "var(--navy-700)" }}
           >
             {aiLoading ? (
               <span className="flex items-center justify-center gap-2">
-                <span className="inline-block w-2 h-2 bg-white rounded-full animate-pulse" />
+                <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 Analysing…
               </span>
             ) : (

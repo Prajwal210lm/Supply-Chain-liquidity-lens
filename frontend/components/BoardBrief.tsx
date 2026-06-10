@@ -15,8 +15,14 @@ export default function BoardBrief({
   return (
     <section>
       <h2 className={sectionHeader}>Board Brief</h2>
-      <div className="bg-gray-50 border border-gray-200 border-l-4 border-l-blue-800 px-8 py-7">
-        <h1 className="text-xl font-bold text-gray-900 mb-5 leading-snug">
+      <div
+        className="bg-white rounded-xl shadow-md border border-gray-100 border-l-4 px-8 py-8"
+        style={{ borderLeftColor: "var(--navy-700)" }}
+      >
+        <h1
+          className="font-display text-2xl mb-6 leading-snug"
+          style={{ color: "var(--navy-900)" }}
+        >
           {headline}
         </h1>
         <div>
@@ -31,7 +37,7 @@ export default function BoardBrief({
                 </div>
               ),
               thead: ({ children }: { children?: ReactNode }) => (
-                <thead className="bg-white">{children}</thead>
+                <thead style={{ background: "rgba(15,26,46,0.04)" }}>{children}</thead>
               ),
               tbody: ({ children }: { children?: ReactNode }) => (
                 <tbody className="divide-y divide-gray-100">{children}</tbody>
@@ -40,37 +46,43 @@ export default function BoardBrief({
                 <tr className="border-b border-gray-100">{children}</tr>
               ),
               th: ({ children }: { children?: ReactNode }) => (
-                <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 border border-gray-200 bg-gray-50">
+                <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] border border-gray-200">
                   {children}
                 </th>
               ),
               td: ({ children }: { children?: ReactNode }) => (
-                <td className="px-4 py-2 text-sm text-gray-700 border border-gray-200">
+                <td className="px-4 py-2.5 text-sm text-[var(--text-primary)] border border-gray-200 tabular-nums">
                   {children}
                 </td>
               ),
               h2: ({ children }: { children?: ReactNode }) => (
-                <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400 border-b border-gray-200 pb-1 mt-6 mb-2">
+                <h2
+                  className="text-xs font-semibold uppercase tracking-widest border-b border-gray-200 pb-1 mt-7 mb-2"
+                  style={{ color: "var(--navy-600)" }}
+                >
                   {children}
                 </h2>
               ),
               h3: ({ children }: { children?: ReactNode }) => (
-                <h3 className="text-sm font-semibold text-gray-800 mt-4 mb-1">
+                <h3
+                  className="text-sm font-semibold mt-4 mb-1"
+                  style={{ color: "var(--navy-800)" }}
+                >
                   {children}
                 </h3>
               ),
               p: ({ children }: { children?: ReactNode }) => (
-                <p className="text-sm text-gray-700 leading-relaxed mb-3">
+                <p className="text-sm text-[var(--text-primary)] leading-relaxed mb-3">
                   {children}
                 </p>
               ),
               ul: ({ children }: { children?: ReactNode }) => (
-                <ul className="list-disc list-inside text-sm text-gray-700 mb-3 space-y-1">
+                <ul className="list-disc list-inside text-sm text-[var(--text-primary)] mb-3 space-y-1">
                   {children}
                 </ul>
               ),
               ol: ({ children }: { children?: ReactNode }) => (
-                <ol className="list-decimal list-inside text-sm text-gray-700 mb-3 space-y-1">
+                <ol className="list-decimal list-inside text-sm text-[var(--text-primary)] mb-3 space-y-1">
                   {children}
                 </ol>
               ),
@@ -78,17 +90,22 @@ export default function BoardBrief({
                 <li className="leading-relaxed">{children}</li>
               ),
               strong: ({ children }: { children?: ReactNode }) => (
-                <strong className="font-semibold text-gray-900">{children}</strong>
+                <strong className="font-semibold tabular-nums" style={{ color: "var(--navy-900)" }}>
+                  {children}
+                </strong>
               ),
               em: ({ children }: { children?: ReactNode }) => (
-                <em className="italic text-gray-600">{children}</em>
+                <em className="italic text-[var(--text-secondary)]">{children}</em>
               ),
               blockquote: ({ children }: { children?: ReactNode }) => (
-                <blockquote className="border-l-4 border-gray-300 pl-4 text-gray-600 italic my-3">
+                <blockquote
+                  className="border-l-4 pl-4 italic my-3 text-sm text-[var(--text-secondary)]"
+                  style={{ borderLeftColor: "var(--navy-600)" }}
+                >
                   {children}
                 </blockquote>
               ),
-              hr: () => <hr className="border-gray-200 my-5" />,
+              hr: () => <hr className="border-gray-200 my-6" />,
             }}
           >
             {bodyMarkdown}

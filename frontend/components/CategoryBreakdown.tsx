@@ -4,16 +4,15 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Cluster, fmtFull, fmtCompact } from "@/lib/api";
 import { sectionHeader } from "@/components/SummaryCards";
 
-// Muted, professional palette — desaturated slate/teal/stone tones
 const COLORS = [
-  "#64748b", // slate-500
-  "#6b7280", // gray-500
-  "#78716c", // stone-500
-  "#4b6a88", // muted blue-slate
-  "#5c7a6e", // muted teal
-  "#7c6b7a", // muted mauve
-  "#8a7a5a", // muted khaki
-  "#6a7a8a", // muted steel
+  "#1B3A5C", // navy-700
+  "#059669", // green-accent
+  "#D97706", // amber-accent
+  "#2563EB", // blue-accent
+  "#7C3AED", // violet
+  "#DB2777", // pink
+  "#0891B2", // cyan
+  "#65A30D", // lime
 ];
 
 type CategoryRow = {
@@ -54,9 +53,9 @@ type TooltipProps = {
 function CustomTooltip({ active, payload }: TooltipProps) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-gray-200 px-3 py-2 text-xs shadow">
-      <p className="font-semibold text-gray-800">{payload[0].name}</p>
-      <p className="text-gray-600">{fmtFull(payload[0].value)} AED</p>
+    <div className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs shadow-lg">
+      <p className="font-semibold text-[var(--text-primary)]">{payload[0].name}</p>
+      <p className="text-[var(--text-secondary)]">{fmtFull(payload[0].value)} AED</p>
     </div>
   );
 }
@@ -68,9 +67,9 @@ export default function CategoryBreakdown({ clusters }: { clusters: Cluster[] })
   const chartData = rows.map((r) => ({ name: r.category, value: r.totalValue, color: r.color }));
 
   return (
-    <section>
+    <section className="bg-white rounded-xl shadow-sm p-6">
       <h2 className={sectionHeader}>Category Breakdown</h2>
-      <div className="border border-gray-200 bg-white flex items-center gap-8 px-6 py-4">
+      <div className="flex flex-col sm:flex-row items-center gap-8">
         {/* Donut chart */}
         <div className="flex-shrink-0" style={{ width: 200, height: 200 }}>
           <ResponsiveContainer width="100%" height="100%">
@@ -99,33 +98,35 @@ export default function CategoryBreakdown({ clusters }: { clusters: Cluster[] })
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left pb-2 font-medium text-gray-500 text-xs uppercase tracking-wide">
+                <th className="text-left pb-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
                   Category
                 </th>
-                <th className="text-right pb-2 font-medium text-gray-500 text-xs uppercase tracking-wide">
+                <th className="text-right pb-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
                   Value at Stake (AED)
                 </th>
-                <th className="text-right pb-2 font-medium text-gray-500 text-xs uppercase tracking-wide w-24">
+                <th className="text-right pb-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] w-20">
                   SKUs
                 </th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((row, i) => (
-                <tr key={row.category} className={`border-b border-gray-100 ${i % 2 === 0 ? "" : "bg-gray-50"}`}>
-                  <td className="py-2 pr-4">
+              {rows.map((row) => (
+                <tr key={row.category} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+                  <td className="py-2.5 pr-4">
                     <span className="flex items-center gap-2">
                       <span
-                        className="inline-block w-2.5 h-2.5 flex-shrink-0"
+                        className="inline-block w-2 h-2 flex-shrink-0 rounded-full"
                         style={{ backgroundColor: row.color }}
                       />
-                      <span className="text-gray-700">{row.category}</span>
+                      <span className="text-[var(--text-primary)]">{row.category}</span>
                     </span>
                   </td>
-                  <td className="py-2 text-right font-medium text-gray-900">
+                  <td className="py-2.5 text-right font-mono tabular-nums text-sm font-medium text-[var(--text-primary)]">
                     {fmtFull(row.totalValue)}
                   </td>
-                  <td className="py-2 text-right text-gray-600">{row.skuCount}</td>
+                  <td className="py-2.5 text-right tabular-nums text-[var(--text-secondary)]">
+                    {row.skuCount}
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -10,89 +10,179 @@ import ClusterTable from "@/components/ClusterTable";
 import SupplierAnalysis from "@/components/SupplierAnalysis";
 import CategoryBreakdown from "@/components/CategoryBreakdown";
 import AskWhyPanel from "@/components/AskWhyPanel";
-import ViolationsBar from "@/components/ViolationsBar";
 
 type RunStatus = "idle" | "loading" | "done" | "error";
 
-// ── Landing page ──────────────────────────────────────────────────────────────
+// ── Inline SVG icons ──────────────────────────────────────────────────────────
 
-function FeatureCard({ title, body }: { title: string; body: string }) {
+function CashIcon() {
   return (
-    <div className="border border-gray-200 bg-white p-6 shadow-sm">
-      <h3 className="text-sm font-semibold text-gray-800 mb-2">{title}</h3>
-      <p className="text-sm text-gray-500 leading-relaxed">{body}</p>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2" y="6" width="20" height="12" rx="2" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M6 12h.01M18 12h.01" />
+    </svg>
+  );
+}
+
+function ClockIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 3" />
+    </svg>
+  );
+}
+
+function ShieldIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 3L4 7v5c0 5.25 3.5 10.15 8 11.25C16.5 22.15 20 17.25 20 12V7l-8-4z" />
+    </svg>
+  );
+}
+
+// ── Feature card ──────────────────────────────────────────────────────────────
+
+function FeatureCard({
+  icon,
+  accentColor,
+  title,
+  body,
+}: {
+  icon: React.ReactNode;
+  accentColor: string;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div
+      className="bg-white rounded-xl shadow-lg p-6 border-t-[3px] transition-all duration-200 hover:shadow-xl hover:translate-y-[-2px]"
+      style={{ borderTopColor: accentColor }}
+    >
+      <div
+        className="w-10 h-10 rounded-full flex items-center justify-center mb-4"
+        style={{ backgroundColor: `${accentColor}1a`, color: accentColor }}
+      >
+        {icon}
+      </div>
+      <h3 className="font-semibold text-base text-[var(--text-primary)] mb-2">{title}</h3>
+      <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{body}</p>
     </div>
   );
 }
 
+// ── Landing page ──────────────────────────────────────────────────────────────
+
 function LandingSection({ onRun, loading }: { onRun: () => void; loading: boolean }) {
   return (
-    <div className="max-w-3xl mx-auto py-16 space-y-10">
-      {/* Hero */}
-      <div className="space-y-3">
-        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
-          Working-Capital Diagnostic
-        </h2>
-        <p className="text-base text-gray-500">
-          AI-powered inventory value-at-stake assessment
+    <div>
+      {/* Dark hero — THE PROBLEM + THE APPROACH */}
+      <div
+        className="relative flex flex-col items-center text-center px-6 py-16"
+        style={{
+          background: "linear-gradient(135deg, var(--navy-900) 0%, var(--navy-800) 100%)",
+        }}
+      >
+        {/* Dot-grid overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
+        />
+
+        {/* THE PROBLEM */}
+        <div className="relative z-10 w-full max-w-[680px] mx-auto">
+          <p className="text-xs uppercase tracking-widest text-white/40 mb-6">The Problem</p>
+          <p className="text-lg text-white/80 leading-relaxed">
+            Large distributors in the GCC hold tens of millions in on-hand inventory across
+            hundreds of SKUs. Cash gets trapped in slow-moving stock. Pharma batches creep
+            toward expiry unnoticed. Fast-moving items stock out while excess sits on the shelf
+            next to them.
+          </p>
+          <p className="text-base text-white/60 max-w-[600px] mx-auto mt-4 leading-relaxed">
+            The problem is not that nobody knows this happens. The problem is that by the time
+            a manual review surfaces it, the financial damage is already done.
+          </p>
+        </div>
+
+        {/* Divider */}
+        <div className="relative z-10 w-full max-w-2xl border-t border-white/10 my-8" />
+
+        {/* THE APPROACH */}
+        <div className="relative z-10 w-full max-w-[640px] mx-auto">
+          <p className="text-xs uppercase tracking-widest text-white/40 mb-6">The Approach</p>
+          <p className="text-base text-white/70 leading-relaxed">
+            Liquidity Lens reads raw inventory, sales, and supplier data for a portfolio of
+            600 SKUs (AED 106M on-hand inventory). It segments every item by ABC-XYZ
+            classification, computes target stock levels calibrated to lead time and demand
+            variability, and flags where value is at stake.
+          </p>
+          <p className="text-base text-white/70 mt-3 leading-relaxed">
+            An AI reasoning layer then diagnoses root causes, writes recommendations, and
+            produces a board memo with prioritised actions and assigned owners. Every number
+            in the output is traceable to a deterministic, tested analytics core. The AI
+            writes prose. It never calculates.
+          </p>
+        </div>
+
+        {/* WHAT IT FINDS label — at the bottom of the dark hero, just above the cards */}
+        <p className="relative z-10 text-xs uppercase tracking-widest text-white/40 mt-14">
+          What It Finds
         </p>
       </div>
 
-      {/* Description paragraphs */}
-      <div className="space-y-4 text-sm text-gray-600 leading-relaxed border-l-4 border-gray-200 pl-5">
-        <p>
-          Liquidity Lens analyses a portfolio of 600 SKUs across FMCG and pharmaceutical
-          categories for a GCC-based distributor. The portfolio holds AED 106M in on-hand
-          inventory across multiple suppliers and warehouses.
-        </p>
-        <p>
-          The diagnostic identifies where cash is trapped in excess stock, which pharma
-          batches are approaching expiry, and which high-value items face stockout risk.
-          It segments SKUs using ABC-XYZ classification and computes target inventory levels
-          calibrated to each item&apos;s lead time and demand variability.
-        </p>
-        <p>
-          The output is a board-ready value-at-stake assessment with prioritised actions
-          and assigned owners, written by an AI reasoning layer where every number is
-          traceable to a deterministic, tested analytics core.
-        </p>
+      {/* Feature cards — overlapping hero by ~40px */}
+      <div className="max-w-5xl mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 -mt-10">
+          <FeatureCard
+            icon={<CashIcon />}
+            accentColor="#059669"
+            title="Releasable Cash"
+            body="Identifies excess inventory above order-up-to levels that is safe to release without service-level risk."
+          />
+          <FeatureCard
+            icon={<ClockIcon />}
+            accentColor="#D97706"
+            title="Expiry Risk"
+            body="Flags near-expiry pharma batches requiring urgent triage to prevent P&L write-offs."
+          />
+          <FeatureCard
+            icon={<ShieldIcon />}
+            accentColor="#DC2626"
+            title="Stockout Protection"
+            body="Detects high-value items below reorder point, explicitly excluded from any release action."
+          />
+        </div>
       </div>
 
-      {/* Feature cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <FeatureCard
-          title="Releasable Cash"
-          body="Identifies excess inventory above order-up-to levels that is safe to release without service-level risk."
-        />
-        <FeatureCard
-          title="Expiry Risk"
-          body="Flags near-expiry pharma batches requiring urgent triage to prevent P&L write-offs."
-        />
-        <FeatureCard
-          title="Stockout Protection"
-          body="Detects high-value items below reorder point, explicitly excluded from any release action."
-        />
-      </div>
-
-      {/* CTA */}
-      <div className="flex flex-col items-center gap-4 pt-2">
+      {/* RUN IT */}
+      <div className="flex flex-col items-center px-6 pt-4 pb-16">
+        <p className="text-sm text-gray-500 max-w-[480px] text-center mt-6 mb-4 leading-relaxed">
+          Click below to run the diagnostic against the full 600-SKU portfolio.
+          The analysis loads pre-computed results from a completed pipeline run.
+        </p>
         <button
           onClick={onRun}
           disabled={loading}
-          className="px-8 py-3 bg-gray-900 text-white text-sm font-medium tracking-wide uppercase
-                     hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-8 py-3 text-sm font-semibold tracking-wide uppercase text-white
+                     rounded-full shadow-lg hover:shadow-xl transition-all duration-200
+                     bg-[var(--navy-700)] hover:bg-[var(--navy-800)]
+                     disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
             <span className="flex items-center gap-2">
-              <span className="inline-block w-2 h-2 bg-white rounded-full animate-pulse" />
+              <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               Running pipeline…
             </span>
           ) : (
             "Run Diagnosis"
           )}
         </button>
-        <p className="text-xs text-gray-400">
-          Synthetic data modelled on a mid-sized GCC distributor. Analysis runs against pre-computed results.
+        <p className="text-xs text-gray-400 italic mt-6">
+          Synthetic data modelled on a mid-sized GCC distributor.
         </p>
       </div>
     </div>
@@ -122,100 +212,106 @@ export default function Home() {
     }
   }, []);
 
-  const handleSkuClick = useCallback(
-    (skuCode: string) => {
-      setSelectedSku((prev) => (prev === skuCode ? null : skuCode));
-    },
-    []
-  );
+  const handleSkuClick = useCallback((skuCode: string) => {
+    setSelectedSku((prev) => (prev === skuCode ? null : skuCode));
+  }, []);
 
   const handleClosePanel = useCallback(() => setSelectedSku(null), []);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* Top bar */}
-      <header className="border-b border-gray-200 bg-white sticky top-0 z-20">
+    <div className="min-h-screen bg-[var(--surface)] flex flex-col">
+      {/* Dark sticky header */}
+      <header
+        className="sticky top-0 z-20"
+        style={{ background: "var(--navy-900)" }}
+      >
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-gray-900 tracking-tight">
+            <h1 className="font-display text-xl text-white tracking-tight">
               Liquidity Lens
             </h1>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.55)" }}>
               Working-Capital Diagnostic · GCC Distributor
             </p>
           </div>
           {status !== "idle" && (
-            <RunButton status={status} onClick={handleRunDiagnosis} />
+            <RunButton status={status} onClick={handleRunDiagnosis} variant="ghost" />
           )}
         </div>
       </header>
 
       {/* Main content */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-8 space-y-10 pb-20">
+      <main className="flex-1 overflow-x-hidden">
         {/* Landing */}
         {(status === "idle" || status === "loading") && (
-          <LandingSection
-            onRun={handleRunDiagnosis}
-            loading={status === "loading"}
-          />
+          <LandingSection onRun={handleRunDiagnosis} loading={status === "loading"} />
         )}
 
         {/* Error */}
         {status === "error" && runError && (
-          <>
-            <div className="border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+          <div className="max-w-7xl mx-auto px-6 py-8 space-y-4">
+            <div className="border border-red-200 bg-red-50 rounded-xl p-5 text-sm text-red-700">
               <strong>Pipeline error:</strong> {runError}
             </div>
             <div className="text-center">
               <button
                 onClick={handleRunDiagnosis}
-                className="px-6 py-2 bg-gray-900 text-white text-sm font-medium tracking-wide uppercase hover:bg-gray-700 transition-colors"
+                className="px-6 py-2.5 text-sm font-semibold tracking-wide uppercase text-white
+                           rounded-full shadow-lg hover:shadow-xl transition-all duration-200
+                           bg-[var(--navy-700)] hover:bg-[var(--navy-800)]"
               >
                 Retry
               </button>
             </div>
-          </>
+          </div>
         )}
 
         {/* Results */}
         {status === "done" && data && (
-          <>
-            <SummaryCards vas={data.value_at_stake} clusters={data.clusters} />
-            <ValueBreakdown vas={data.value_at_stake} />
-            <BoardBrief
-              headline={data.brief.headline}
-              bodyMarkdown={data.brief.body_markdown}
-            />
-            <ClusterTable
-              clusters={data.clusters}
-              onSkuClick={handleSkuClick}
-              selectedSku={selectedSku}
-            />
-            <SupplierAnalysis clusters={data.clusters} />
-            <CategoryBreakdown clusters={data.clusters} />
-          </>
+          <div className="max-w-7xl mx-auto px-6 py-8 space-y-8 pb-20">
+            <div className="animate-fade-up" style={{ animationDelay: "0ms" }}>
+              <SummaryCards vas={data.value_at_stake} clusters={data.clusters} />
+            </div>
+            <div className="animate-fade-up" style={{ animationDelay: "60ms" }}>
+              <ValueBreakdown vas={data.value_at_stake} />
+            </div>
+            <div className="animate-fade-up" style={{ animationDelay: "120ms" }}>
+              <BoardBrief
+                headline={data.brief.headline}
+                bodyMarkdown={data.brief.body_markdown}
+              />
+            </div>
+            <div className="animate-fade-up" style={{ animationDelay: "180ms" }}>
+              <ClusterTable
+                clusters={data.clusters}
+                onSkuClick={handleSkuClick}
+                selectedSku={selectedSku}
+              />
+            </div>
+            <div className="animate-fade-up" style={{ animationDelay: "240ms" }}>
+              <SupplierAnalysis clusters={data.clusters} />
+            </div>
+            <div className="animate-fade-up" style={{ animationDelay: "300ms" }}>
+              <CategoryBreakdown clusters={data.clusters} />
+            </div>
+          </div>
         )}
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 py-5 text-center">
-        <p className="text-xs text-gray-400">
+      <footer className="border-t border-gray-200 py-5 text-center bg-white">
+        <p className="text-xs text-[var(--text-secondary)]">
           Liquidity Lens · Working-Capital Diagnostic · Built with Python, LangGraph, Claude, Next.js
         </p>
       </footer>
 
-      {/* SKU detail panel */}
+      {/* SKU detail panel — always mounted when done, slides in/out */}
       {status === "done" && data && (
         <AskWhyPanel
           skuCode={selectedSku}
           clusters={data.clusters}
           onClose={handleClosePanel}
         />
-      )}
-
-      {/* Violations bar */}
-      {status === "done" && data && (
-        <ViolationsBar violations={data.violations} />
       )}
     </div>
   );

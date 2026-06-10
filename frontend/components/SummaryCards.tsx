@@ -5,7 +5,7 @@ import { Cluster, ValueAtStake, fmtCompact } from "@/lib/api";
 // ── Section header shared style ───────────────────────────────────────────────
 
 export const sectionHeader =
-  "text-xs font-semibold uppercase tracking-widest text-gray-400 border-b border-gray-200 pb-2 mb-4";
+  "text-xs font-semibold uppercase tracking-widest text-[#1B3A5C] border-b border-gray-200 pb-2 mb-4";
 
 // ── KPI card ──────────────────────────────────────────────────────────────────
 
@@ -13,24 +13,46 @@ type CardProps = {
   label: string;
   value: number;
   count: number;
-  borderColor: string;
-  textColor: string;
+  accentColor: string;
+  valueColor: string;
   isTotal?: boolean;
+  animDelay?: number;
 };
 
-function Card({ label, value, count, borderColor, textColor, isTotal }: CardProps) {
+function Card({ label, value, count, accentColor, valueColor, isTotal, animDelay = 0 }: CardProps) {
   return (
     <div
-      className={`border border-gray-200 border-l-4 p-6 ${borderColor} ${isTotal ? "bg-gray-50" : "bg-white"}`}
+      className={`relative bg-white rounded-xl shadow-sm overflow-hidden flex hover:shadow-md transition-shadow duration-200 ${isTotal ? "" : ""}`}
+      style={
+        isTotal
+          ? { background: "rgba(15,26,46,0.04)" }
+          : {}
+      }
     >
-      <p className="text-xs font-semibold tracking-widest uppercase text-gray-500 mb-2">
-        {label}
-      </p>
-      <p className={`font-bold ${textColor} ${isTotal ? "text-4xl" : "text-3xl"}`}>
-        {fmtCompact(value)}
-        <span className="text-lg font-normal text-gray-400 ml-1">AED</span>
-      </p>
-      <p className="text-sm text-gray-400 mt-1">{count.toLocaleString()} SKUs</p>
+      {/* Left accent bar */}
+      <div
+        className="w-1 flex-shrink-0 self-stretch"
+        style={{ backgroundColor: accentColor }}
+      />
+      {/* Content */}
+      <div className="flex-1 p-6">
+        <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-2">
+          {label}
+        </p>
+        <p
+          className={`font-display leading-none mb-1 ${isTotal ? "text-[2.5rem]" : "text-[2.25rem]"}`}
+          style={{ color: valueColor }}
+        >
+          {fmtCompact(value)}
+          <span
+            className="text-base font-sans font-normal ml-1.5"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            AED
+          </span>
+        </p>
+        <p className="text-sm text-[var(--text-secondary)]">{count.toLocaleString()} SKUs</p>
+      </div>
     </div>
   );
 }
@@ -45,9 +67,10 @@ export default function SummaryCards({
   clusters: Cluster[];
 }) {
   const byId = Object.fromEntries(clusters.map((c) => [c.cluster_id, c]));
-  const flaggedPct = vas.sku_count > 0
-    ? Math.round((vas.flagged_sku_count / vas.sku_count) * 100)
-    : 0;
+  const flaggedPct =
+    vas.sku_count > 0
+      ? Math.round((vas.flagged_sku_count / vas.sku_count) * 100)
+      : 0;
 
   return (
     <section>
@@ -56,33 +79,37 @@ export default function SummaryCards({
           label="Releasable Cash"
           value={vas.releasable_cash}
           count={byId["slow_excess"]?.member_count ?? 0}
-          borderColor="border-l-green-600"
-          textColor="text-green-700"
+          accentColor="var(--green-accent)"
+          valueColor="var(--green-accent)"
+          animDelay={0}
         />
         <Card
           label="Write-Off Exposure"
           value={vas.write_off_exposure}
           count={byId["expiry"]?.member_count ?? 0}
-          borderColor="border-l-amber-500"
-          textColor="text-amber-700"
+          accentColor="var(--amber-accent)"
+          valueColor="var(--amber-accent)"
+          animDelay={50}
         />
         <Card
           label="Stockout Risk"
           value={vas.stockout_margin_loss}
           count={byId["stockout"]?.member_count ?? 0}
-          borderColor="border-l-red-600"
-          textColor="text-red-700"
+          accentColor="var(--red-accent)"
+          valueColor="var(--red-accent)"
+          animDelay={100}
         />
         <Card
           label="Total at Stake"
           value={vas.total}
           count={vas.flagged_sku_count}
-          borderColor="border-l-gray-500"
-          textColor="text-gray-900"
+          accentColor="var(--navy-700)"
+          valueColor="var(--navy-900)"
           isTotal
+          animDelay={150}
         />
       </div>
-      <p className="text-xs text-gray-400 mt-3">
+      <p className="text-xs text-[var(--text-secondary)] mt-3 pt-3 border-t border-gray-200">
         Portfolio: {vas.sku_count.toLocaleString()} SKUs
         {" · "}AED 106M on-hand inventory
         {" · "}{vas.flagged_sku_count.toLocaleString()} flagged ({flaggedPct}%)
