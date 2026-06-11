@@ -66,8 +66,8 @@ function FeatureCard({
       >
         {icon}
       </div>
-      <h3 className="font-semibold text-base text-[var(--text-primary)] mb-2">{title}</h3>
-      <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{body}</p>
+      <h3 className="font-semibold text-[15px] text-gray-900 mb-2">{title}</h3>
+      <p className="text-[13px] text-gray-500 leading-[1.6]">{body}</p>
     </div>
   );
 }
@@ -94,15 +94,15 @@ function LandingSection({ onRun, loading }: { onRun: () => void; loading: boolea
         />
 
         {/* THE PROBLEM */}
-        <div className="relative z-10 w-full max-w-[680px] mx-auto">
-          <p className="text-xs uppercase tracking-widest text-white/40 mb-6">The Problem</p>
-          <p className="text-lg text-white/80 leading-relaxed">
+        <div className="relative z-10 w-full max-w-[700px] mx-auto">
+          <p className="text-[11px] uppercase tracking-[0.15em] text-white/40 mb-6">The Problem</p>
+          <p className="font-display italic text-2xl text-white/90 leading-[1.6]">
             Large distributors in the GCC hold tens of millions in on-hand inventory across
             hundreds of SKUs. Cash gets trapped in slow-moving stock. Pharma batches creep
             toward expiry unnoticed. Fast-moving items stock out while excess sits on the shelf
             next to them.
           </p>
-          <p className="text-base text-white/60 max-w-[600px] mx-auto mt-4 leading-relaxed">
+          <p className="text-base text-white/65 max-w-[580px] mx-auto mt-4 leading-[1.7]">
             The problem is not that nobody knows this happens. The problem is that by the time
             a manual review surfaces it, the financial damage is already done.
           </p>
@@ -113,14 +113,14 @@ function LandingSection({ onRun, loading }: { onRun: () => void; loading: boolea
 
         {/* THE APPROACH */}
         <div className="relative z-10 w-full max-w-[640px] mx-auto">
-          <p className="text-xs uppercase tracking-widest text-white/40 mb-6">The Approach</p>
-          <p className="text-base text-white/70 leading-relaxed">
+          <p className="text-[11px] uppercase tracking-[0.15em] text-white/40 mb-6">The Approach</p>
+          <p className="text-[15px] text-white/70 leading-[1.75]">
             Liquidity Lens reads raw inventory, sales, and supplier data for a portfolio of
             600 SKUs (AED 106M on-hand inventory). It segments every item by ABC-XYZ
             classification, computes target stock levels calibrated to lead time and demand
             variability, and flags where value is at stake.
           </p>
-          <p className="text-base text-white/70 mt-3 leading-relaxed">
+          <p className="text-[15px] text-white/70 mt-3 leading-[1.75]">
             An AI reasoning layer then diagnoses root causes, writes recommendations, and
             produces a board memo with prioritised actions and assigned owners. Every number
             in the output is traceable to a deterministic, tested analytics core. The AI
@@ -129,7 +129,7 @@ function LandingSection({ onRun, loading }: { onRun: () => void; loading: boolea
         </div>
 
         {/* WHAT IT FINDS label — at the bottom of the dark hero, just above the cards */}
-        <p className="relative z-10 text-xs uppercase tracking-widest text-white/40 mt-14">
+        <p className="relative z-10 text-[11px] uppercase tracking-[0.15em] text-white/40 mt-14">
           What It Finds
         </p>
       </div>
@@ -228,10 +228,10 @@ export default function Home() {
       >
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="font-display text-xl text-white tracking-tight">
+            <h1 className="font-display text-[22px] font-bold text-white">
               Liquidity Lens
             </h1>
-            <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.55)" }}>
+            <p className="text-[13px] mt-0.5 text-white/50">
               Working-Capital Diagnostic · GCC Distributor
             </p>
           </div>
@@ -315,7 +315,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-gray-200 py-5 text-center bg-white">
-        <p className="text-xs text-[var(--text-secondary)]">
+        <p className="text-[11px] text-gray-400">
           Liquidity Lens · Working-Capital Diagnostic · Built with Python, LangGraph, Claude, Next.js
         </p>
       </footer>

@@ -5,6 +5,19 @@ import remarkGfm from "remark-gfm";
 import type { ReactNode } from "react";
 import { sectionHeader } from "@/components/SummaryCards";
 
+// Reformat large currency values ("18,819,464.91 AED") into rounded forms
+// (18.8M AED / 281K AED / 24.6K AED) directly in the markdown/headline prose.
+function reformatCurrency(text: string): string {
+  return text.replace(/([\d,]+(?:\.\d+)?)\s*AED/g, (match, numStr: string) => {
+    const value = parseFloat(numStr.replace(/,/g, ""));
+    if (Number.isNaN(value)) return match;
+    if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M AED`;
+    if (value >= 100_000) return `${Math.round(value / 1_000)}K AED`;
+    if (value >= 10_000) return `${(value / 1_000).toFixed(1)}K AED`;
+    return match; // below 10,000: leave as-is
+  });
+}
+
 export default function BoardBrief({
   headline,
   bodyMarkdown,
@@ -12,6 +25,8 @@ export default function BoardBrief({
   headline: string;
   bodyMarkdown: string;
 }) {
+  const formattedHeadline = reformatCurrency(headline);
+  const formattedBody = reformatCurrency(bodyMarkdown);
   return (
     <section>
       <h2 className={sectionHeader}>Board Brief</h2>
@@ -19,11 +34,8 @@ export default function BoardBrief({
         className="bg-white rounded-xl shadow-md border border-gray-100 border-l-4 px-8 py-8"
         style={{ borderLeftColor: "var(--navy-700)" }}
       >
-        <h1
-          className="font-display text-2xl mb-6 leading-snug"
-          style={{ color: "var(--navy-900)" }}
-        >
-          {headline}
+        <h1 className="font-display text-[28px] font-semibold text-gray-900 mb-6 leading-[1.4]">
+          {formattedHeadline}
         </h1>
         <div>
           <Markdown
@@ -46,7 +58,7 @@ export default function BoardBrief({
                 <tr className="border-b border-gray-100">{children}</tr>
               ),
               th: ({ children }: { children?: ReactNode }) => (
-                <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] border border-gray-200">
+                <th className="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400 border border-gray-200">
                   {children}
                 </th>
               ),
@@ -57,7 +69,7 @@ export default function BoardBrief({
               ),
               h2: ({ children }: { children?: ReactNode }) => (
                 <h2
-                  className="text-xs font-semibold uppercase tracking-widest border-b border-gray-200 pb-1 mt-7 mb-2"
+                  className="text-[10px] font-semibold uppercase tracking-[0.12em] border-b border-gray-200 pb-1 mt-7 mb-2"
                   style={{ color: "var(--navy-600)" }}
                 >
                   {children}
@@ -72,7 +84,7 @@ export default function BoardBrief({
                 </h3>
               ),
               p: ({ children }: { children?: ReactNode }) => (
-                <p className="text-sm text-[var(--text-primary)] leading-relaxed mb-3">
+                <p className="text-[14px] text-gray-700 leading-[1.8] mb-3">
                   {children}
                 </p>
               ),
@@ -90,7 +102,7 @@ export default function BoardBrief({
                 <li className="leading-relaxed">{children}</li>
               ),
               strong: ({ children }: { children?: ReactNode }) => (
-                <strong className="font-semibold tabular-nums" style={{ color: "var(--navy-900)" }}>
+                <strong className="font-display font-semibold tabular-nums text-gray-900">
                   {children}
                 </strong>
               ),
@@ -108,7 +120,7 @@ export default function BoardBrief({
               hr: () => <hr className="border-gray-200 my-6" />,
             }}
           >
-            {bodyMarkdown}
+            {formattedBody}
           </Markdown>
         </div>
       </div>

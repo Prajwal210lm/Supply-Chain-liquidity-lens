@@ -5,7 +5,7 @@ import { Cluster, ValueAtStake, fmtCompact } from "@/lib/api";
 // ── Section header shared style ───────────────────────────────────────────────
 
 export const sectionHeader =
-  "text-xs font-semibold uppercase tracking-widest text-[#1B3A5C] border-b border-gray-200 pb-2 mb-4";
+  "text-[10px] font-semibold uppercase tracking-[0.15em] text-[#1B3A5C] border-b border-gray-200 pb-2 mb-4";
 
 // ── KPI card ──────────────────────────────────────────────────────────────────
 
@@ -36,22 +36,19 @@ function Card({ label, value, count, accentColor, valueColor, isTotal, animDelay
       />
       {/* Content */}
       <div className="flex-1 p-6">
-        <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-2">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500 mb-2">
           {label}
         </p>
         <p
-          className={`font-display leading-none mb-1 ${isTotal ? "text-[2.5rem]" : "text-[2.25rem]"}`}
+          className="font-display text-[42px] leading-none mb-1"
           style={{ color: valueColor }}
         >
           {fmtCompact(value)}
-          <span
-            className="text-base font-sans font-normal ml-1.5"
-            style={{ color: "var(--text-secondary)" }}
-          >
+          <span className="text-[14px] font-normal ml-1.5 text-gray-400">
             AED
           </span>
         </p>
-        <p className="text-sm text-[var(--text-secondary)]">{count.toLocaleString()} SKUs</p>
+        <p className="text-[12px] text-gray-400">{count.toLocaleString()} SKUs</p>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Cluster, fmtFull, fmtCompact } from "@/lib/api";
 import { sectionHeader } from "@/components/SummaryCards";
+import { formatAED } from "@/lib/format";
 
 const COLORS = [
   "#1B3A5C", // navy-700
@@ -98,13 +99,13 @@ export default function CategoryBreakdown({ clusters }: { clusters: Cluster[] })
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left pb-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+                <th className="text-left pb-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">
                   Category
                 </th>
-                <th className="text-right pb-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+                <th className="text-right pb-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">
                   Value at Stake (AED)
                 </th>
-                <th className="text-right pb-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] w-20">
+                <th className="text-right pb-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400 w-20">
                   SKUs
                 </th>
               </tr>
@@ -122,7 +123,7 @@ export default function CategoryBreakdown({ clusters }: { clusters: Cluster[] })
                     </span>
                   </td>
                   <td className="py-2.5 text-right font-mono tabular-nums text-sm font-medium text-[var(--text-primary)]">
-                    {fmtFull(row.totalValue)}
+                    {formatAED(row.totalValue)}
                   </td>
                   <td className="py-2.5 text-right tabular-nums text-[var(--text-secondary)]">
                     {row.skuCount}

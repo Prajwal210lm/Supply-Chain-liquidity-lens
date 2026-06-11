@@ -1,7 +1,8 @@
 "use client";
 
-import { Cluster, fmtFull } from "@/lib/api";
+import { Cluster } from "@/lib/api";
 import { sectionHeader } from "@/components/SummaryCards";
+import { formatAED } from "@/lib/format";
 
 type SupplierRow = {
   supplier: string;
@@ -60,19 +61,19 @@ export default function SupplierAnalysis({ clusters }: { clusters: Cluster[] }) 
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr className="border-b border-gray-200 bg-gray-50">
-              <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+              <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">
                 Supplier
               </th>
-              <th className="text-right px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+              <th className="text-right px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">
                 Value at Stake (AED)
               </th>
-              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] w-24">
+              <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400 w-24">
                 Exposure
               </th>
-              <th className="text-right px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] w-24">
+              <th className="text-right px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400 w-24">
                 SKUs
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+              <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">
                 Primary Risk
               </th>
             </tr>
@@ -95,7 +96,7 @@ export default function SupplierAnalysis({ clusters }: { clusters: Cluster[] }) 
                     {row.supplier}
                   </td>
                   <td className="px-4 py-3 text-right font-mono tabular-nums text-sm text-[var(--text-primary)] font-medium">
-                    {fmtFull(row.totalValue)}
+                    {formatAED(row.totalValue)}
                   </td>
                   {/* Inline contribution bar */}
                   <td className="px-4 py-3">

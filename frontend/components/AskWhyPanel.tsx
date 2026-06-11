@@ -3,6 +3,19 @@
 import { useState, useCallback } from "react";
 import { Cluster, ClusterMember, SkuFacts, CLUSTER_LABELS, fetchAskWhy, fmtFull, fmtDecimal } from "@/lib/api";
 
+// Round large comma-formatted numbers in AI prose (18,819,464.91 -> 18.8M,
+// 344,093.90 -> 344K, 24,600 -> 24.6K). Numbers under 10,000 are left as-is.
+function formatLargeNumbers(text: string): string {
+  return text.replace(/\d{1,3}(?:,\d{3})+(?:\.\d+)?/g, (match) => {
+    const value = parseFloat(match.replace(/,/g, ""));
+    if (Number.isNaN(value)) return match;
+    if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+    if (value >= 100_000) return `${Math.round(value / 1_000)}K`;
+    if (value >= 10_000) return `${(value / 1_000).toFixed(1)}K`;
+    return match; // below 10,000: leave as-is
+  });
+}
+
 // ── Fact lookup ───────────────────────────────────────────────────────────────
 
 type FoundSku = {
@@ -223,7 +236,7 @@ export default function AskWhyPanel({
               <p className="text-xs font-semibold uppercase tracking-widest text-[var(--navy-700)] mb-2">
                 AI Explanation
               </p>
-              <p className="text-sm text-[var(--text-primary)] leading-relaxed">{aiResult}</p>
+              <p className="text-sm text-[var(--text-primary)] leading-relaxed">{formatLargeNumbers(aiResult)}</p>
             </div>
           )}
 

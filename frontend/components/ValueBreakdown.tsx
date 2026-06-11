@@ -23,7 +23,7 @@ export default function ValueBreakdown({ vas }: { vas: ValueAtStake }) {
   return (
     <section className="bg-white rounded-xl shadow-sm p-6">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 pb-3 mb-4">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-[#1B3A5C]">
+        <h2 className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#1B3A5C]">
           Value Breakdown
         </h2>
         <div className="flex flex-wrap items-center gap-5">

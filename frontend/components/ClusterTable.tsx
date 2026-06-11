@@ -11,6 +11,7 @@ import {
   fmtDecimal,
 } from "@/lib/api";
 import { sectionHeader } from "@/components/SummaryCards";
+import { formatAED } from "@/lib/format";
 
 // ── Cluster accent colours ────────────────────────────────────────────────────
 
@@ -93,7 +94,7 @@ function ClusterSection({
         <div className="flex items-center gap-3">
           {/* Coloured cluster badge */}
           <span
-            className="inline-block rounded-full px-3 py-0.5 text-xs font-semibold"
+            className="inline-block rounded-full px-3 py-0.5 text-[15px] font-semibold"
             style={{ backgroundColor: style.bg, color: style.text }}
           >
             {label}
@@ -103,9 +104,8 @@ function ClusterSection({
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="font-display text-xl" style={{ color: "var(--navy-900)" }}>
-            {fmtFull(cluster.lever_total)}
-            <span className="text-sm font-sans font-normal ml-1.5 text-[var(--text-secondary)]">AED</span>
+          <span className="font-display text-[20px]" style={{ color: style.color }}>
+            {formatAED(cluster.lever_total)}
           </span>
           <span className="text-[var(--text-secondary)]">
             <Chevron open={open} />
@@ -119,22 +119,22 @@ function ClusterSection({
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] w-28">
+                <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400 w-28">
                   SKU
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+                <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">
                   Category
                 </th>
-                <th className="text-right px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+                <th className="text-right px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">
                   Value at Stake (AED)
                 </th>
-                <th className="text-center px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+                <th className="text-center px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">
                   {cover.header}
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+                <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">
                   Supplier
                 </th>
-                <th className="text-center px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] w-20">
+                <th className="text-center px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400 w-20">
                   ABC·XYZ
                 </th>
               </tr>
@@ -154,22 +154,22 @@ function ClusterSection({
                   >
                     <td className="px-4 py-2.5">
                       <span
-                        className="font-mono text-xs hover:underline"
+                        className="font-mono text-[13px] hover:underline"
                         style={{ color: "var(--navy-700)" }}
                       >
                         {m.facts.sku_code}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-sm text-[var(--text-primary)]">
+                    <td className="px-4 py-2.5 text-[13px] text-gray-700">
                       {m.facts.category_name ?? "—"}
                     </td>
-                    <td className="px-4 py-2.5 text-right font-mono tabular-nums text-sm text-[var(--text-primary)] font-medium">
+                    <td className="px-4 py-2.5 text-right font-mono tabular-nums text-[13px] text-gray-700 font-medium">
                       {fmtFull(m.lever_contribution)}
                     </td>
-                    <td className="px-4 py-2.5 text-center font-mono tabular-nums text-sm text-[var(--text-secondary)]">
+                    <td className="px-4 py-2.5 text-center font-mono tabular-nums text-[13px] text-gray-700">
                       {cover.getValue(m)}
                     </td>
-                    <td className="px-4 py-2.5 text-sm text-[var(--text-secondary)] max-w-32 truncate">
+                    <td className="px-4 py-2.5 text-[13px] text-gray-700 max-w-32 truncate">
                       {m.facts.supplier_name ?? "—"}
                     </td>
                     <td className="px-4 py-2.5 text-center">
