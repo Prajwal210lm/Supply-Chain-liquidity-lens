@@ -72,6 +72,57 @@ function FeatureCard({
   );
 }
 
+// ── Data model ────────────────────────────────────────────────────────────────
+
+const DATA_TABLES: { name: string; description: string; columns: string[] }[] = [
+  {
+    name: "sku",
+    description: "Product master",
+    columns: ["sku_code", "name", "category_id", "unit_cost", "selling_price", "is_perishable", "shelf_life_days", "service_level_target"],
+  },
+  {
+    name: "supplier",
+    description: "Vendor master",
+    columns: ["supplier_id", "name", "country", "reliability_score"],
+  },
+  {
+    name: "category",
+    description: "Product categories",
+    columns: ["category_id", "name"],
+  },
+  {
+    name: "sku_supplier",
+    description: "SKU-supplier links",
+    columns: ["sku_id", "supplier_id", "lead_time_days", "moq", "is_primary"],
+  },
+  {
+    name: "inventory_batch",
+    description: "Stock by lot",
+    columns: ["batch_id", "sku_id", "batch_code", "quantity_on_hand", "received_date", "expiry_date"],
+  },
+  {
+    name: "sales_history",
+    description: "Weekly sales",
+    columns: ["sku_id", "week_start_date", "quantity_sold", "revenue"],
+  },
+];
+
+function DataModelCard({ name, description, columns }: { name: string; description: string; columns: string[] }) {
+  return (
+    <div className="bg-white/5 border border-white/10 rounded-lg p-4 text-left">
+      <p className="font-mono text-[14px] font-semibold text-white">{name}</p>
+      <p className="text-[12px] text-white/50 mt-0.5 mb-3">{description}</p>
+      <div className="flex flex-wrap gap-1.5">
+        {columns.map((col) => (
+          <span key={col} className="font-mono text-[11px] text-white/40">
+            {col}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Landing page ──────────────────────────────────────────────────────────────
 
 function LandingSection({ onRun, loading }: { onRun: () => void; loading: boolean }) {
@@ -126,6 +177,40 @@ function LandingSection({ onRun, loading }: { onRun: () => void; loading: boolea
             in the output is traceable to a deterministic, tested analytics core. The AI
             writes prose. It never calculates.
           </p>
+        </div>
+
+        {/* Divider */}
+        <div className="relative z-10 w-full max-w-2xl border-t border-white/10 my-8" />
+
+        {/* THE DATA */}
+        <div className="relative z-10 w-full max-w-5xl mx-auto">
+          <p className="text-[11px] uppercase tracking-widest text-white/40 mb-6">The Data</p>
+          <p className="text-[15px] text-white/70 max-w-[640px] mx-auto leading-[1.75]">
+            Liquidity Lens runs on a relational dataset modelled on a real GCC distributor:
+            600 SKUs, 8 suppliers, 104 weeks of sales history, and batch-level inventory with
+            expiry dates. Six tables, fully normalised.
+          </p>
+
+          {/* Data model cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+            {DATA_TABLES.map((t) => (
+              <DataModelCard key={t.name} name={t.name} description={t.description} columns={t.columns} />
+            ))}
+          </div>
+
+          {/* Download */}
+          <div className="flex flex-col items-center mt-8">
+            <a
+              href="/data/liquidity_lens_dataset.zip"
+              download
+              className="border border-white/20 text-white/70 hover:text-white rounded-full px-5 py-2 text-sm transition-colors duration-150"
+            >
+              Download full dataset (CSV)
+            </a>
+            <p className="text-[11px] text-white/40 mt-3">
+              6 tables, 600 SKUs, 104 weeks of sales history
+            </p>
+          </div>
         </div>
 
         {/* WHAT IT FINDS label — at the bottom of the dark hero, just above the cards */}
