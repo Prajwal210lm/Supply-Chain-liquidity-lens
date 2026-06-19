@@ -1,25 +1,36 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Fraunces, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const playfair = Playfair_Display({
+// Display: Fraunces — high-contrast editorial serif for headlines and big numbers
+const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "900"],
   style: ["normal", "italic"],
-  variable: "--font-display",
+  variable: "--font-fraunces",
   display: "swap",
 });
 
+// Body / UI: Inter
 const inter = Inter({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-body",
+  variable: "--font-inter",
+  display: "swap",
+});
+
+// Data / codes: IBM Plex Mono — financial-grade monospace
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-plex",
   display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Liquidity Lens — Working Capital Diagnostic",
-  description: "Working-capital diagnostic for GCC distributors.",
+  description:
+    "A working-capital diagnostic for GCC distributors. Where cash is trapped, why, and what to release first.",
 };
 
 export default function RootLayout({
@@ -28,8 +39,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`h-full ${playfair.variable} ${inter.variable}`}>
-      <body className="min-h-full">{children}</body>
+    <html
+      lang="en"
+      className={`h-full ${fraunces.variable} ${inter.variable} ${plexMono.variable}`}
+    >
+      <body className="min-h-full antialiased">{children}</body>
     </html>
   );
 }

@@ -85,6 +85,21 @@ def _reconstruct_run_from_cache(cached: dict) -> DiagnosisRun:
     )
 
 
+def _get_or_load_run() -> DiagnosisRun | None:
+    """Return the most recent run, lazily rebuilding it from the cached JSON.
+
+    ``_last_run`` is per-process state set by /api/diagnose. On a fresh backend
+    process (cold start, restart, or a replica that never served diagnose),
+    ask-why would otherwise 404. Falling back to the on-disk cached diagnosis
+    lets ask-why answer for any SKU in the stored top_members without a live run.
+    """
+    global _last_run
+    if _last_run is None and _CACHE_PATH.exists():
+        cached = json.loads(_CACHE_PATH.read_text(encoding="utf-8"))
+        _last_run = _reconstruct_run_from_cache(cached)
+    return _last_run
+
+
 # ── Serialization helpers ─────────────────────────────────────────────────────
 
 def _serialize_member(member, max_members: int = 20) -> dict:
@@ -250,13 +265,14 @@ def diagnose_endpoint(fresh: bool = Query(default=False)) -> dict:
 @app.post("/api/ask-why/{sku_code}")
 def ask_why(sku_code: str) -> dict:
     """Explain a single flagged SKU in plain English using the most recent run."""
-    if _last_run is None:
+    run = _get_or_load_run()
+    if run is None:
         raise HTTPException(
             status_code=404,
             detail="No diagnosis run available; call POST /api/diagnose first.",
         )
 
-    explanation, violations, cluster_ids = _explain_sku(sku_code, _last_run)
+    explanation, violations, cluster_ids = _explain_sku(sku_code, run)
     return {
         "sku_code": sku_code,
         "explanation": explanation,

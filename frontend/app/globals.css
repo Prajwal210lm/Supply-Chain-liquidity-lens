@@ -1,45 +1,154 @@
 @import "tailwindcss";
 
+/* ── Wire next/font families into Tailwind's font utilities ─────────────────── */
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-plex), ui-monospace, "SFMono-Regular", "Menlo", monospace;
+}
+
+/* ── Design tokens ─────────────────────────────────────────────────────────── */
 :root {
-  --navy-900: #0F1A2E;
-  --navy-800: #1B2D4A;
-  --navy-700: #1B3A5C;
+  /* Ink foundation (dark) — deep, slightly warm navy/ink */
+  --ink-950: #060A12;
+  --ink-900: #0A1120;
+  --navy-900: #0B1322;
+  --navy-800: #122036;
+  --navy-700: #1C3B5E;
   --navy-600: #2E5C8A;
-  --surface: #F8F9FB;
-  --green-accent: #059669;
-  --amber-accent: #D97706;
-  --red-accent: #DC2626;
+
+  /* Light surface — warm "paper", not flat gray */
+  --surface: #F6F6F2;
+  --surface-2: #EFEFE9;
+  --card: #FFFFFF;
+
+  /* Premium accent — deep gold, used sparingly for hairlines + brandmark */
+  --gold: #BD9A4A;
+  --gold-soft: #D8BE80;
+  --gold-line: rgba(189, 154, 74, 0.28);
+
+  /* Risk accents — precise, semantic */
+  --green-accent: #0E9F6E;
+  --amber-accent: #D9842B;
+  --red-accent: #D6453D;
   --blue-accent: #2563EB;
-  --text-primary: #1A1A2E;
-  --text-secondary: #64748B;
+
+  /* Text */
+  --text-primary: #14233B;
+  --text-secondary: #51617A;
+  --text-on-dark: #F3F1EA;
+  --text-on-dark-muted: rgba(243, 241, 234, 0.62);
+
+  /* Elevation scale (Dimensional Layering — 4 levels) */
+  --elev-1: 0 1px 2px rgba(15, 26, 46, 0.05), 0 1px 3px rgba(15, 26, 46, 0.06);
+  --elev-2: 0 2px 6px rgba(15, 26, 46, 0.06), 0 6px 16px rgba(15, 26, 46, 0.08);
+  --elev-3: 0 4px 10px rgba(15, 26, 46, 0.07), 0 16px 34px rgba(15, 26, 46, 0.12);
+  --elev-4: 0 8px 18px rgba(15, 26, 46, 0.10), 0 30px 60px rgba(15, 26, 46, 0.18);
+
+  /* z-index scale */
+  --z-header: 50;
+  --z-backdrop: 60;
+  --z-panel: 70;
 }
 
 body {
   background: var(--surface);
   color: var(--text-primary);
-  font-family: var(--font-body), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "cv01", "tnum" 0;
 }
 
-/* Playfair Display for display headings and large numbers */
+/* Fraunces — display headings & large numbers (optical sizing for big sizes) */
 .font-display {
-  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  font-family: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  font-optical-sizing: auto;
 }
 
-/* Stagger fade-up for results cards */
+/* Tabular figures for any number that must align in columns */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ── Texture utilities for dark sections ───────────────────────────────────── */
+.tx-dotgrid {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.tx-gold-hairline {
+  border-color: var(--gold-line);
+}
+
+/* ── Motion ────────────────────────────────────────────────────────────────── */
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
 .animate-fade-up {
   opacity: 0;
-  animation: fadeUp 0.4s ease-out forwards;
+  animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -480px 0; }
+  100% { background-position: 480px 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.10) 50%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  background-size: 960px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes barGrow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.animate-bar {
+  transform-origin: left center;
+  animation: barGrow 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 1; }
+}
+.animate-pulse-dot { animation: pulseDot 1.4s ease-in-out infinite; }
+
+/* ── Board brief: editorial drop cap on first paragraph ────────────────────── */
+.board-prose > p:first-of-type::first-letter {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 600;
+  font-size: 3.1rem;
+  line-height: 0.78;
+  float: left;
+  margin: 0.06em 0.12em 0 0;
+  color: var(--navy-800);
+}
+
+/* ── Focus — visible rings for keyboard nav ────────────────────────────────── */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--gold-soft);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Respect reduced motion ────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-fade-up { opacity: 1; transform: none; }
+  .animate-bar { transform: none; }
 }

@@ -10,37 +10,27 @@ import {
   fmtFull,
   fmtDecimal,
 } from "@/lib/api";
-import { sectionHeader } from "@/components/SummaryCards";
+import { SectionHeading } from "@/components/SummaryCards";
 import { formatAED } from "@/lib/format";
 
 // ── Cluster accent colours ────────────────────────────────────────────────────
 
 const CLUSTER_STYLE: Record<string, { bg: string; text: string; color: string }> = {
-  slow_excess: { bg: "#0596691a", text: "#059669", color: "#059669" },
-  expiry:      { bg: "#D977061a", text: "#D97706", color: "#D97706" },
-  stockout:    { bg: "#DC26261a", text: "#DC2626", color: "#DC2626" },
+  slow_excess: { bg: "rgba(14,159,110,0.12)", text: "#0E9F6E", color: "#0E9F6E" },
+  expiry: { bg: "rgba(217,132,43,0.12)", text: "#D9842B", color: "#D9842B" },
+  stockout: { bg: "rgba(214,69,61,0.12)", text: "#D6453D", color: "#D6453D" },
 };
+
+const FALLBACK_STYLE = { bg: "rgba(81,97,122,0.12)", text: "#51617A", color: "#51617A" };
 
 // ── Per-cluster column configuration ─────────────────────────────────────────
 
-type CoverConfig = {
-  header: string;
-  getValue: (m: ClusterMember) => string;
-};
+type CoverConfig = { header: string; getValue: (m: ClusterMember) => string };
 
 const COVER_CONFIG: Record<ClusterId, CoverConfig> = {
-  slow_excess: {
-    header: "Months Cover",
-    getValue: (m) => fmtDecimal(m.facts.months_of_cover, 1),
-  },
-  expiry: {
-    header: "Days to Expiry",
-    getValue: (m) => fmtDecimal(m.specifics.nearest_days_to_expiry as number | null, 0),
-  },
-  stockout: {
-    header: "Shortfall Days",
-    getValue: (m) => fmtDecimal(m.specifics.shortfall_days as number | null, 0),
-  },
+  slow_excess: { header: "Months Cover", getValue: (m) => fmtDecimal(m.facts.months_of_cover, 1) },
+  expiry: { header: "Days to Expiry", getValue: (m) => fmtDecimal(m.specifics.nearest_days_to_expiry as number | null, 0) },
+  stockout: { header: "Shortfall Days", getValue: (m) => fmtDecimal(m.specifics.shortfall_days as number | null, 0) },
 };
 
 // ── Chevron icon ──────────────────────────────────────────────────────────────
@@ -48,21 +38,17 @@ const COVER_CONFIG: Record<ClusterId, CoverConfig> = {
 function Chevron({ open }: { open: boolean }) {
   return (
     <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={`transition-transform duration-200 ${open ? "rotate-180" : "rotate-0"}`}
+      width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"
+      strokeLinecap="round" strokeLinejoin="round"
+      className={`transition-transform duration-300 ${open ? "rotate-180" : "rotate-0"}`}
       aria-hidden="true"
     >
       <path d="M4 6l4 4 4-4" />
     </svg>
   );
 }
+
+const TH = "px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--text-secondary)]/80";
 
 // ── Cluster section ───────────────────────────────────────────────────────────
 
@@ -81,30 +67,36 @@ function ClusterSection({
   const cover = COVER_CONFIG[cluster.cluster_id];
   const label = CLUSTER_LABELS[cluster.cluster_id];
   const lever = LEVER_LABELS[cluster.lever] ?? cluster.lever;
-  const style = CLUSTER_STYLE[cluster.cluster_id] ?? { bg: "#6475801a", text: "#64748B", color: "#64748B" };
+  const style = CLUSTER_STYLE[cluster.cluster_id] ?? FALLBACK_STYLE;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+    <div
+      className="relative rounded-2xl overflow-hidden transition-shadow duration-300"
+      style={{ background: "var(--card)", boxShadow: open ? "var(--elev-2)" : "var(--elev-1)", border: "1px solid rgba(15,26,46,0.05)" }}
+    >
+      {/* Left accent spine */}
+      <span className="absolute left-0 inset-y-0 w-[3px]" style={{ background: style.color }} />
+
       {/* Header */}
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors text-left"
-        style={{ background: open ? "rgba(15,26,46,0.02)" : undefined }}
+        aria-expanded={open}
+        className="w-full flex items-center justify-between gap-4 pl-5 pr-4 py-4 text-left cursor-pointer transition-colors duration-200 hover:bg-black/[0.015]"
+        style={open ? { background: "rgba(15,26,46,0.02)" } : undefined}
       >
-        <div className="flex items-center gap-3">
-          {/* Coloured cluster badge */}
+        <div className="flex items-center gap-3 min-w-0">
           <span
-            className="inline-block rounded-full px-3 py-0.5 text-[15px] font-semibold"
+            className="inline-block rounded-full px-3 py-1 text-[12px] font-semibold flex-shrink-0"
             style={{ backgroundColor: style.bg, color: style.text }}
           >
             {label}
           </span>
-          <span className="text-xs text-[var(--text-secondary)]">
+          <span className="text-[12px] text-[var(--text-secondary)] truncate">
             {lever} · {cluster.member_count} SKUs
           </span>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="font-display text-[20px]" style={{ color: style.color }}>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <span className="font-display text-[21px] tnum" style={{ color: style.color }}>
             {formatAED(cluster.lever_total)}
           </span>
           <span className="text-[var(--text-secondary)]">
@@ -115,28 +107,16 @@ function ClusterSection({
 
       {/* Collapsible table */}
       {open && cluster.top_members.length > 0 && (
-        <div className="overflow-x-auto border-t border-gray-100">
-          <table className="w-full text-sm border-collapse">
+        <div className="overflow-x-auto border-t border-black/5">
+          <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400 w-28">
-                  SKU
-                </th>
-                <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">
-                  Category
-                </th>
-                <th className="text-right px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">
-                  Value at Stake (AED)
-                </th>
-                <th className="text-center px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">
-                  {cover.header}
-                </th>
-                <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">
-                  Supplier
-                </th>
-                <th className="text-center px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400 w-20">
-                  ABC·XYZ
-                </th>
+              <tr style={{ background: "var(--surface)" }}>
+                <th className={`${TH} text-left w-28`}>SKU</th>
+                <th className={`${TH} text-left`}>Category</th>
+                <th className={`${TH} text-right`}>Value at Stake</th>
+                <th className={`${TH} text-center`}>{cover.header}</th>
+                <th className={`${TH} text-left`}>Supplier</th>
+                <th className={`${TH} text-center w-20`}>ABC·XYZ</th>
               </tr>
             </thead>
             <tbody>
@@ -146,34 +126,38 @@ function ClusterSection({
                   <tr
                     key={`${m.facts.sku_code}-${i}`}
                     onClick={() => onSkuClick(m.facts.sku_code)}
-                    className={`border-b border-gray-100 cursor-pointer transition-colors
-                      ${isSelected
-                        ? "bg-blue-50 border-l-2 border-l-blue-500"
-                        : "hover:bg-gray-50"
-                      }`}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onSkuClick(m.facts.sku_code);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Inspect SKU ${m.facts.sku_code}`}
+                    aria-pressed={isSelected}
+                    className={`cursor-pointer border-b border-black/[0.04] last:border-0 transition-colors duration-150 ${
+                      isSelected ? "bg-[var(--gold)]/[0.07]" : "hover:bg-black/[0.02]"
+                    }`}
                   >
-                    <td className="px-4 py-2.5">
-                      <span
-                        className="font-mono text-[13px] hover:underline"
-                        style={{ color: "var(--navy-700)" }}
-                      >
+                    <td className="px-4 py-2.5 relative">
+                      {isSelected && <span className="absolute left-0 inset-y-0 w-[2px] bg-[var(--gold)]" />}
+                      <span className="font-mono text-[12.5px] font-medium hover:underline" style={{ color: "var(--navy-700)" }}>
                         {m.facts.sku_code}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-[13px] text-gray-700">
-                      {m.facts.category_name ?? "—"}
-                    </td>
-                    <td className="px-4 py-2.5 text-right font-mono tabular-nums text-[13px] text-gray-700 font-medium">
+                    <td className="px-4 py-2.5 text-[13px] text-[var(--text-primary)]/80">{m.facts.category_name ?? "—"}</td>
+                    <td className="px-4 py-2.5 text-right font-mono text-[12.5px] text-[var(--text-primary)] font-medium tnum">
                       {fmtFull(m.lever_contribution)}
                     </td>
-                    <td className="px-4 py-2.5 text-center font-mono tabular-nums text-[13px] text-gray-700">
+                    <td className="px-4 py-2.5 text-center font-mono text-[12.5px] text-[var(--text-secondary)] tnum">
                       {cover.getValue(m)}
                     </td>
-                    <td className="px-4 py-2.5 text-[13px] text-gray-700 max-w-32 truncate">
+                    <td className="px-4 py-2.5 text-[13px] text-[var(--text-secondary)] max-w-32 truncate">
                       {m.facts.supplier_name ?? "—"}
                     </td>
                     <td className="px-4 py-2.5 text-center">
-                      <span className="inline-block rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-[var(--text-secondary)]">
+                      <span className="inline-block rounded-md bg-[var(--surface-2)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--text-secondary)]">
                         {m.facts.abc_class ?? "?"}·{m.facts.xyz_class ?? "?"}
                       </span>
                     </td>
@@ -186,7 +170,7 @@ function ClusterSection({
       )}
 
       {open && cluster.top_members.length === 0 && (
-        <p className="px-5 py-4 text-sm text-[var(--text-secondary)] italic border-t border-gray-100">
+        <p className="px-5 py-4 text-[13px] text-[var(--text-secondary)] italic border-t border-black/5">
           No flagged SKUs in this cluster.
         </p>
       )}
@@ -207,8 +191,12 @@ export default function ClusterTable({
 }) {
   return (
     <section>
-      <h2 className={sectionHeader}>Flagged Clusters</h2>
-      <div className="space-y-3">
+      <SectionHeading
+        right={<span className="text-[11px] text-[var(--text-secondary)]">Click any row to inspect a SKU</span>}
+      >
+        Flagged Clusters
+      </SectionHeading>
+      <div className="space-y-3.5">
         {clusters.map((c, i) => (
           <ClusterSection
             key={c.cluster_id}

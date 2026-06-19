@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { Cluster, ClusterMember, SkuFacts, CLUSTER_LABELS, fetchAskWhy, fmtFull, fmtDecimal } from "@/lib/api";
+import { formatAED } from "@/lib/format";
 
 // Round large comma-formatted numbers in AI prose (18,819,464.91 -> 18.8M,
 // 344,093.90 -> 344K, 24,600 -> 24.6K). Numbers under 10,000 are left as-is.
@@ -18,11 +19,7 @@ function formatLargeNumbers(text: string): string {
 
 // ── Fact lookup ───────────────────────────────────────────────────────────────
 
-type FoundSku = {
-  member: ClusterMember;
-  clusterId: string;
-  clusterLabel: string;
-};
+type FoundSku = { member: ClusterMember; clusterId: string; clusterLabel: string };
 
 function findSku(clusters: Cluster[], skuCode: string): FoundSku[] {
   const results: FoundSku[] = [];
@@ -41,30 +38,35 @@ function findSku(clusters: Cluster[], skuCode: string): FoundSku[] {
 }
 
 const CLUSTER_STYLE: Record<string, { bg: string; text: string }> = {
-  slow_excess: { bg: "#0596691a", text: "#059669" },
-  expiry:      { bg: "#D977061a", text: "#D97706" },
-  stockout:    { bg: "#DC26261a", text: "#DC2626" },
+  slow_excess: { bg: "rgba(14,159,110,0.14)", text: "#10B981" },
+  expiry: { bg: "rgba(217,132,43,0.14)", text: "#E0982C" },
+  stockout: { bg: "rgba(214,69,61,0.14)", text: "#EF6B63" },
 };
 
 // ── Key-value row ─────────────────────────────────────────────────────────────
 
 function KV({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex justify-between gap-4 py-1.5 border-b border-gray-100 last:border-0">
-      <span className="text-xs uppercase tracking-wider text-[var(--text-secondary)] flex-shrink-0 w-44">
-        {label}
-      </span>
-      <span className="font-mono text-xs text-[var(--text-primary)] text-right">{value}</span>
+    <div className="flex justify-between gap-4 py-1.5 border-b border-black/[0.05] last:border-0">
+      <span className="text-[11px] uppercase tracking-[0.08em] text-[var(--text-secondary)] flex-shrink-0 w-44">{label}</span>
+      <span className="font-mono text-[12px] text-[var(--text-primary)] text-right tnum">{value}</span>
     </div>
+  );
+}
+
+function BlockLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--navy-700)] mb-2.5">
+      <span className="w-3 h-px bg-[var(--gold)] flex-shrink-0" aria-hidden="true" />
+      {children}
+    </p>
   );
 }
 
 function FactsBlock({ facts }: { facts: SkuFacts }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-secondary)] mb-2">
-        SKU Facts
-      </p>
+      <BlockLabel>SKU Facts</BlockLabel>
       <KV label="Category" value={facts.category_name ?? "—"} />
       <KV label="Supplier" value={facts.supplier_name ?? "—"} />
       <KV label="Supplier Reliability" value={facts.supplier_reliability != null ? `${(facts.supplier_reliability * 100).toFixed(0)}%` : "—"} />
@@ -84,26 +86,31 @@ function FactsBlock({ facts }: { facts: SkuFacts }) {
   );
 }
 
+// Format a cluster-specific value consistently with the rest of the app:
+// currency-like fields as X.XM/XXXK AED, counts/days as whole or 2-dp numbers,
+// arrays as a count, nested objects skipped.
+function formatSpecific(key: string, v: unknown): string | null {
+  if (v == null) return null;
+  if (typeof v === "boolean") return v ? "Yes" : "No";
+  if (typeof v === "number") {
+    if (/(value|cash|contribution|loss|exposure|revenue)/i.test(key)) return formatAED(v);
+    return Number.isInteger(v) ? v.toLocaleString("en-US") : v.toFixed(2);
+  }
+  if (Array.isArray(v)) return `${v.length} ${v.length === 1 ? "batch" : "batches"}`;
+  if (typeof v === "object") return null; // skip nested objects (no "[object Object]")
+  return String(v);
+}
+
 function SpecificsBlock({ specifics }: { specifics: Record<string, unknown> }) {
-  const entries = Object.entries(specifics).filter(([, v]) => v != null);
+  const entries = Object.entries(specifics)
+    .map(([k, v]) => [k, formatSpecific(k, v)] as const)
+    .filter((e): e is readonly [string, string] => e[1] !== null);
   if (entries.length === 0) return null;
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-secondary)] mb-2">
-        Cluster Specifics
-      </p>
+      <BlockLabel>Cluster Specifics</BlockLabel>
       {entries.map(([k, v]) => (
-        <KV
-          key={k}
-          label={k.replace(/_/g, " ")}
-          value={
-            typeof v === "number"
-              ? fmtDecimal(v, 2)
-              : typeof v === "boolean"
-              ? v ? "Yes" : "No"
-              : String(v)
-          }
-        />
+        <KV key={k} label={k.replace(/_/g, " ")} value={v} />
       ))}
     </div>
   );
@@ -134,7 +141,10 @@ export default function AskWhyPanel({
       setAiResult(res.explanation);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes("404") || msg.includes("No diagnosis run")) {
+      // Backend down (network error) or no live run available → show a clean
+      // "needs a live run" message rather than a raw fetch error.
+      const networkish = err instanceof TypeError || /failed to fetch|networkerror|load failed/i.test(msg);
+      if (networkish || msg.includes("404") || msg.includes("No diagnosis run")) {
         setAiUnavailable(true);
       } else {
         setAiResult(`Error: ${msg}`);
@@ -160,40 +170,43 @@ export default function AskWhyPanel({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-40 transition-opacity duration-200"
+        className="fixed inset-0 transition-opacity duration-300"
         style={{
-          background: "rgba(0,0,0,0.2)",
+          background: "rgba(6,10,18,0.45)",
+          backdropFilter: "blur(2px)",
           opacity: isOpen ? 1 : 0,
           pointerEvents: isOpen ? "auto" : "none",
+          zIndex: "var(--z-backdrop)" as React.CSSProperties["zIndex"],
         }}
         onClick={onClose}
       />
 
       {/* Slide-in panel */}
       <aside
-        className="fixed top-0 right-0 h-full w-full sm:w-[480px] z-50 flex flex-col shadow-2xl rounded-l-2xl overflow-hidden"
+        className="fixed top-0 right-0 h-full w-full sm:w-[480px] flex flex-col overflow-hidden rounded-l-2xl"
         style={{
           transform: isOpen ? "translateX(0)" : "translateX(100%)",
-          transition: "transform 0.25s ease-out",
-          background: "#ffffff",
+          transition: "transform 0.32s cubic-bezier(0.16, 1, 0.3, 1)",
+          background: "var(--card)",
+          boxShadow: "var(--elev-4)",
+          zIndex: "var(--z-panel)" as React.CSSProperties["zIndex"],
         }}
+        aria-hidden={!isOpen}
+        inert={!isOpen || undefined}
       >
-        {/* Dark header */}
+        {/* Dark header with gold hairline */}
         <div
           className="flex items-center justify-between px-6 py-5 flex-shrink-0"
-          style={{ background: "var(--navy-900)" }}
+          style={{ background: "linear-gradient(160deg, var(--ink-950), var(--navy-900))", boxShadow: "0 1px 0 var(--gold-line)" }}
         >
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>
-              SKU Detail
-            </p>
-            <p className="font-mono text-sm font-bold text-white">{skuCode ?? "—"}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] mb-1 text-[var(--gold-soft)]/85">SKU Detail</p>
+            <p className="font-mono text-[15px] font-semibold text-white tnum">{skuCode ?? "—"}</p>
           </div>
           <button
             onClick={onClose}
-            className="transition-opacity hover:opacity-100 opacity-60"
-            style={{ color: "white" }}
-            aria-label="Close"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-white/70 hover:text-white hover:bg-white/10 cursor-pointer transition-colors duration-200"
+            aria-label="Close panel"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               <path d="M3 3l10 10M13 3L3 13" />
@@ -204,23 +217,18 @@ export default function AskWhyPanel({
         {/* Scrollable body */}
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
           {isOpen && found.length === 0 && (
-            <p className="text-sm text-[var(--text-secondary)] italic">SKU not found in top members.</p>
+            <p className="text-[13px] text-[var(--text-secondary)] italic">SKU not found in top members.</p>
           )}
 
           {isOpen && found.map(({ member, clusterId, clusterLabel }) => {
-            const style = CLUSTER_STYLE[clusterId] ?? { bg: "#6475801a", text: "#64748B" };
+            const style = CLUSTER_STYLE[clusterId] ?? { bg: "rgba(81,97,122,0.14)", text: "#51617A" };
             return (
               <div key={clusterId} className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="text-xs px-2.5 py-0.5 rounded-full font-semibold"
-                    style={{ backgroundColor: style.bg, color: style.text }}
-                  >
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[11.5px] px-2.5 py-0.5 rounded-full font-semibold" style={{ backgroundColor: style.bg, color: style.text }}>
                     {clusterLabel}
                   </span>
-                  <span className="text-xs text-[var(--text-secondary)]">
-                    {fmtFull(member.lever_contribution)} AED at stake
-                  </span>
+                  <span className="text-[12px] text-[var(--text-secondary)] tnum">{fmtFull(member.lever_contribution)} AED at stake</span>
                 </div>
                 <FactsBlock facts={member.facts} />
                 <SpecificsBlock specifics={member.specifics} />
@@ -229,33 +237,26 @@ export default function AskWhyPanel({
           })}
 
           {aiResult && (
-            <div
-              className="rounded-xl p-4 border"
-              style={{ background: "rgba(15,26,46,0.03)", borderColor: "rgba(27,58,92,0.15)" }}
-            >
-              <p className="text-xs font-semibold uppercase tracking-widest text-[var(--navy-700)] mb-2">
-                AI Explanation
-              </p>
-              <p className="text-sm text-[var(--text-primary)] leading-relaxed">{formatLargeNumbers(aiResult)}</p>
+            <div className="rounded-xl p-4 border" style={{ background: "var(--surface)", borderColor: "var(--gold-line)" }}>
+              <BlockLabel>AI Explanation</BlockLabel>
+              <p className="text-[13.5px] text-[var(--text-primary)]/90 leading-[1.7]">{formatLargeNumbers(aiResult)}</p>
             </div>
           )}
 
           {aiUnavailable && (
-            <p className="text-xs text-[var(--text-secondary)] italic">
-              Run a fresh diagnosis to enable AI explanations.
-            </p>
+            <p className="text-[12px] text-[var(--text-secondary)] italic">AI explanations require a live diagnosis run.</p>
           )}
         </div>
 
         {/* Ask AI footer */}
-        <div className="flex-shrink-0 px-6 py-4 border-t border-gray-100">
+        <div className="flex-shrink-0 px-6 py-4 border-t border-black/8">
           <button
             onClick={handleAskAi}
             disabled={aiLoading || !isOpen}
-            className="w-full px-4 py-2.5 text-sm font-semibold uppercase tracking-wide text-white
-                       rounded-lg transition-all duration-200
-                       disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: "var(--navy-700)" }}
+            className="w-full px-4 py-2.5 text-[13px] font-semibold uppercase tracking-[0.06em] text-white rounded-xl
+                       cursor-pointer transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5
+                       disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            style={{ background: "linear-gradient(180deg, var(--navy-700), var(--navy-800))", boxShadow: "var(--elev-2)" }}
           >
             {aiLoading ? (
               <span className="flex items-center justify-center gap-2">
@@ -263,7 +264,7 @@ export default function AskWhyPanel({
                 Analysing…
               </span>
             ) : (
-              "Ask AI"
+              "Ask AI why this is flagged"
             )}
           </button>
         </div>

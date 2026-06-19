@@ -13,27 +13,38 @@ export default function RunButton({
 }) {
   const loading = status === "loading";
 
-  const solidClasses =
-    "bg-[var(--navy-700)] hover:bg-[var(--navy-800)] text-white shadow-md hover:shadow-lg";
-  const ghostClasses =
-    "border border-white/30 text-white hover:bg-white/10 bg-transparent";
+  const base =
+    "inline-flex items-center gap-2 px-5 py-2 text-[12.5px] font-semibold tracking-[0.06em] uppercase rounded-full " +
+    "cursor-pointer transition-[transform,background-color,border-color,box-shadow] duration-200 ease-out " +
+    "disabled:opacity-50 disabled:cursor-not-allowed";
+
+  const ghost = "border border-white/20 text-white/85 hover:text-white hover:border-white/40 bg-white/5 hover:bg-white/10";
+
+  if (variant === "ghost") {
+    return (
+      <button onClick={onClick} disabled={loading} className={`${base} ${ghost}`}>
+        {loading ? <Spinner /> : "Run Diagnosis"}
+      </button>
+    );
+  }
 
   return (
     <button
       onClick={onClick}
       disabled={loading}
-      className={`px-5 py-2 text-sm font-semibold tracking-wide uppercase rounded-full
-                  transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
-                  ${variant === "ghost" ? ghostClasses : solidClasses}`}
+      className={`${base} text-white hover:-translate-y-0.5`}
+      style={{ background: "linear-gradient(180deg, var(--navy-700), var(--navy-800))", boxShadow: "var(--elev-2)" }}
     >
-      {loading ? (
-        <span className="flex items-center gap-2">
-          <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          Running…
-        </span>
-      ) : (
-        "Run Diagnosis"
-      )}
+      {loading ? <Spinner /> : "Run Diagnosis"}
     </button>
+  );
+}
+
+function Spinner() {
+  return (
+    <span className="flex items-center gap-2">
+      <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+      Running…
+    </span>
   );
 }

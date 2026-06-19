@@ -1,7 +1,7 @@
 "use client";
 
 import { Cluster } from "@/lib/api";
-import { sectionHeader } from "@/components/SummaryCards";
+import { SectionHeading } from "@/components/SummaryCards";
 import { formatAED } from "@/lib/format";
 
 type SupplierRow = {
@@ -26,10 +26,7 @@ function aggregateSuppliers(clusters: Cluster[]): SupplierRow[] {
       const row = map.get(name)!;
       row.totalValue += member.lever_contribution;
       row.skuCodes.add(member.facts.sku_code);
-      row.clusterCounts.set(
-        cluster.cluster_id,
-        (row.clusterCounts.get(cluster.cluster_id) ?? 0) + 1
-      );
+      row.clusterCounts.set(cluster.cluster_id, (row.clusterCounts.get(cluster.cluster_id) ?? 0) + 1);
     }
   }
 
@@ -43,10 +40,12 @@ function aggregateSuppliers(clusters: Cluster[]): SupplierRow[] {
 }
 
 const CLUSTER_BADGE: Record<string, { label: string; bg: string; text: string; barColor: string }> = {
-  slow_excess: { label: "Slow & Excess", bg: "#0596691a", text: "#059669", barColor: "#059669" },
-  expiry:      { label: "Expiry Risk",   bg: "#D977061a", text: "#D97706", barColor: "#D97706" },
-  stockout:    { label: "Stockout Risk", bg: "#DC26261a", text: "#DC2626", barColor: "#DC2626" },
+  slow_excess: { label: "Slow & Excess", bg: "rgba(14,159,110,0.12)", text: "#0E9F6E", barColor: "#0E9F6E" },
+  expiry: { label: "Expiry Risk", bg: "rgba(217,132,43,0.12)", text: "#D9842B", barColor: "#D9842B" },
+  stockout: { label: "Stockout Risk", bg: "rgba(214,69,61,0.12)", text: "#D6453D", barColor: "#D6453D" },
 };
+
+const TH = "px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--text-secondary)]/80";
 
 export default function SupplierAnalysis({ clusters }: { clusters: Cluster[] }) {
   const rows = aggregateSuppliers(clusters);
@@ -55,66 +54,42 @@ export default function SupplierAnalysis({ clusters }: { clusters: Cluster[] }) 
   const maxVal = Math.max(...rows.map((r) => r.totalValue), 1);
 
   return (
-    <section className="bg-white rounded-xl shadow-sm p-6">
-      <h2 className={sectionHeader}>Supplier Exposure</h2>
+    <section
+      className="rounded-2xl p-6"
+      style={{ background: "var(--card)", boxShadow: "var(--elev-2)", border: "1px solid rgba(15,26,46,0.05)" }}
+    >
+      <SectionHeading>Supplier Exposure</SectionHeading>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm border-collapse">
+        <table className="w-full border-collapse">
           <thead>
-            <tr className="border-b border-gray-200 bg-gray-50">
-              <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">
-                Supplier
-              </th>
-              <th className="text-right px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">
-                Value at Stake (AED)
-              </th>
-              <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400 w-24">
-                Exposure
-              </th>
-              <th className="text-right px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400 w-24">
-                SKUs
-              </th>
-              <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">
-                Primary Risk
-              </th>
+            <tr className="border-b border-black/8">
+              <th className={`${TH} text-left`}>Supplier</th>
+              <th className={`${TH} text-right`}>Value at Stake</th>
+              <th className={`${TH} text-left w-32`}>Exposure</th>
+              <th className={`${TH} text-right w-20`}>SKUs</th>
+              <th className={`${TH} text-left`}>Primary Risk</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, i) => {
+            {rows.map((row) => {
               const badge = CLUSTER_BADGE[row.primaryCluster] ?? {
-                label: row.primaryCluster,
-                bg: "#6475801a",
-                text: "#64748B",
-                barColor: "#64748B",
+                label: row.primaryCluster, bg: "rgba(81,97,122,0.12)", text: "#51617A", barColor: "#51617A",
               };
               const barWidthPct = ((row.totalValue / maxVal) * 100).toFixed(1);
               return (
-                <tr
-                  key={row.supplier}
-                  className={`border-b border-gray-100 ${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
-                >
-                  <td className="px-4 py-3 font-medium text-[var(--text-primary)]">
-                    {row.supplier}
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono tabular-nums text-sm text-[var(--text-primary)] font-medium">
+                <tr key={row.supplier} className="border-b border-black/[0.04] last:border-0 transition-colors duration-150 hover:bg-black/[0.02]">
+                  <td className="px-4 py-3 text-[13.5px] font-medium text-[var(--text-primary)]">{row.supplier}</td>
+                  <td className="px-4 py-3 text-right font-mono text-[12.5px] text-[var(--text-primary)] font-medium tnum">
                     {formatAED(row.totalValue)}
                   </td>
-                  {/* Inline contribution bar */}
                   <td className="px-4 py-3">
-                    <div className="w-16 h-1 rounded-full bg-gray-200 overflow-hidden">
-                      <div
-                        className="h-full rounded-full"
-                        style={{ width: `${barWidthPct}%`, backgroundColor: badge.barColor }}
-                      />
+                    <div className="w-24 h-1.5 rounded-full bg-[var(--surface-2)] overflow-hidden">
+                      <div className="h-full rounded-full animate-bar" style={{ width: `${barWidthPct}%`, backgroundColor: badge.barColor }} />
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-right text-[var(--text-secondary)] tabular-nums">
-                    {row.skuCount}
-                  </td>
+                  <td className="px-4 py-3 text-right text-[13px] text-[var(--text-secondary)] tnum">{row.skuCount}</td>
                   <td className="px-4 py-3">
-                    <span
-                      className="inline-block text-xs px-2.5 py-0.5 rounded-full font-medium"
-                      style={{ backgroundColor: badge.bg, color: badge.text }}
-                    >
+                    <span className="inline-block text-[11.5px] px-2.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: badge.bg, color: badge.text }}>
                       {badge.label}
                     </span>
                   </td>

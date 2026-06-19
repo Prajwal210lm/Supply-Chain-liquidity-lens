@@ -1,0 +1,7 @@
+﻿category_id,name,service_level_target
+1,FMCG ΓÇô Beverages,0.9
+2,FMCG ΓÇô Personal Care,0.9
+3,FMCG ΓÇô Food,0.9
+4,Pharma ΓÇô Antibiotics,0.95
+5,Pharma ΓÇô Chronic,0.97
+6,Pharma ΓÇô OTC,0.92
