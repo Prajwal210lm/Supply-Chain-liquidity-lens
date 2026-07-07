@@ -66,6 +66,16 @@ def _mock_state():
 client = TestClient(app)
 
 
+@pytest.fixture(autouse=True)
+def isolate_cache_path(tmp_path, monkeypatch):
+    """Redirect the on-disk diagnosis cache to a temp file for every test in this
+    module, so a fresh-run test never overwrites the real data/last_diagnosis.json
+    (a git-tracked demo artifact)."""
+    import backend.api as api_module
+
+    monkeypatch.setattr(api_module, "_CACHE_PATH", tmp_path / "last_diagnosis.json")
+
+
 # ── Health ────────────────────────────────────────────────────────────────────
 
 def test_health():
@@ -111,16 +121,60 @@ def test_diagnose_response_shape():
     assert set(v.keys()) >= {"diagnose", "recommend", "prioritise", "narrate"}
 
 
-# ── Ask-why: 404 when no run in memory ───────────────────────────────────────
+# ── Ask-why: 404 only when the cache is genuinely absent ─────────────────────
 
-def test_ask_why_404_without_prior_diagnose():
+def test_ask_why_404_without_prior_diagnose_or_cache():
+    """No in-memory run AND no on-disk cache (isolate_cache_path points at an
+    empty tmp_path) -> _get_or_load_run() has nothing to fall back to -> 404."""
     import backend.api as api_module
     original = api_module._last_run
     api_module._last_run = None
     try:
+        assert not api_module._CACHE_PATH.exists()
         r = client.post("/api/ask-why/S1")
         assert r.status_code == 404
         assert "diagnose" in r.json()["detail"]
+    finally:
+        api_module._last_run = original
+
+
+def test_ask_why_succeeds_from_cache_alone():
+    """No in-memory run, but a cached diagnosis exists on disk -> ask-why lazily
+    reconstructs the run from the cache and answers without a live pipeline run."""
+    import json
+    from types import SimpleNamespace
+
+    import backend.api as api_module
+
+    state = _mock_state()
+    cached_body = api_module._build_response(state)
+    api_module._CACHE_PATH.write_text(json.dumps(cached_body, default=str), encoding="utf-8")
+
+    original = api_module._last_run
+    api_module._last_run = None
+
+    mock_text = "SKU S is carrying {{clusters[0].members[0].facts.months_of_cover}} months of cover."
+
+    class _MockMessages:
+        def create(self, **kwargs):
+            block = SimpleNamespace(type="text", text=mock_text)
+            return SimpleNamespace(content=[block])
+
+    class _MockClient:
+        def __init__(self):
+            self.messages = _MockMessages()
+
+    try:
+        with patch("backend.api.get_client", return_value=_MockClient()):
+            r = client.post("/api/ask-why/S1")
+        assert r.status_code == 200
+        body = r.json()
+        assert body["sku_code"] == "S1"
+        assert body["violations"] == []
+        assert "{{" not in body["explanation"]
+        # Confirm the run really came from the cache, not a live run.
+        assert api_module._last_run is not None
+        assert api_module._last_run.run_id == "cached"
     finally:
         api_module._last_run = original
 
@@ -158,5 +212,44 @@ def test_ask_why_shape():
         assert "{{" not in body["explanation"]          # placeholders rendered
         assert "cluster_memberships" in body
         assert "slow_excess" in body["cluster_memberships"]
+    finally:
+        api_module._last_run = None
+
+
+# ── Ask-why: fails CLOSED on a contract violation ─────────────────────────────
+
+def test_ask_why_withholds_explanation_on_contract_violation():
+    """If the model's prose contains a bare digit (or any other contract
+    violation), the raw text must never reach the response — `explanation`
+    is withheld (empty) and `violations` is non-empty. This is the one place
+    a fabricated/unverifiable number could otherwise reach the screen."""
+    import backend.api as api_module
+    from types import SimpleNamespace
+
+    state = _mock_state()
+    run = state["diagnosis_run"]
+    api_module._last_run = run
+
+    # A bare digit outside any {{...}} placeholder — an unambiguous violation.
+    fabricated_text = "SKU S is carrying 32 months of cover, well above target."
+
+    class _MockMessages:
+        def create(self, **kwargs):
+            block = SimpleNamespace(type="text", text=fabricated_text)
+            return SimpleNamespace(content=[block])
+
+    class _MockClient:
+        def __init__(self):
+            self.messages = _MockMessages()
+
+    try:
+        with patch("backend.api.get_client", return_value=_MockClient()):
+            r = client.post("/api/ask-why/S1")
+        assert r.status_code == 200
+        body = r.json()
+        assert body["violations"] != []
+        assert body["explanation"] == ""
+        # The fabricated text must not leak into the response anywhere.
+        assert "32" not in body["explanation"]
     finally:
         api_module._last_run = None

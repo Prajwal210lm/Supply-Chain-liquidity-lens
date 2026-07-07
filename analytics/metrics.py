@@ -9,6 +9,14 @@ Conventions (approved):
   * stockout is a snapshot exposure: reorder today, run out at days-of-cover,
     replenishment lands at lead time, so you are out for (lead - cover) days
   * value-at-stake de-dups dead vs excess: a dead SKU counts once, at full value
+  * value-at-stake does NOT de-dup excess vs expiry write-off: a near-expiry
+    excess SKU contributes to both levers, because they name two independent,
+    mutually exclusive ACTIONS on the same units (return/markdown for cash vs.
+    let it expire and write it off), not one recoverable amount. The grand
+    total is therefore an upper bound, not strictly additive, when a SKU is
+    flagged under more than one lever — surfaced as a caveat wherever the
+    total is shown. See releasable_cash_contribution and
+    tests/test_nodes.py::test_overlap_sku_appears_in_two_clusters_and_still_reconciles.
 """
 
 from __future__ import annotations
@@ -258,7 +266,20 @@ _is_sku_dead = is_sku_dead  # backwards-compatible alias
 def releasable_cash_contribution(sku: Sku) -> float:
     """A SKU's contribution to the releasable-cash lever, with the dead/excess
     de-dup applied: dead stock counts at full value, otherwise excess only.
-    Shared by ``value_at_stake`` and the Compute node so totals reconcile."""
+    Shared by ``value_at_stake`` and the Compute node so totals reconcile.
+
+    NOT de-duped against expiry write-off: a perishable SKU that is both
+    above its target coverage and carrying a near-expiry batch contributes to
+    BOTH releasable_cash and write_off_exposure. This is deliberate — see
+    tests/test_nodes.py::test_overlap_sku_appears_in_two_clusters_and_still_reconciles
+    — the two levers represent independent, mutually exclusive ACTIONS on the
+    same units (return/markdown the excess for cash, vs. let it expire and
+    write it off), not a single recoverable amount, so showing both is more
+    informative than pre-judging which action a distributor would take.
+    Consequently portfolio_value_at_stake.total is NOT guaranteed additive
+    across the three dimensions when a SKU is flagged under more than one;
+    see the caveat wherever the total is surfaced (KPI card, board brief).
+    """
     if is_sku_dead(sku):
         return dead_stock_value(sku.on_hand, sku.unit_cost)
     return excess_value(sku.on_hand, sku.avg_weekly_demand, sku.target_coverage_days, sku.unit_cost)

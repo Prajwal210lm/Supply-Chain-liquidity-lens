@@ -43,7 +43,6 @@ cd frontend
 npm install
 npm run dev        # development server
 npm run build      # production build
-npm run lint       # ESLint
 ```
 
 ## Architecture

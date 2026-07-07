@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { DiagnoseResponse, runDiagnosis } from "@/lib/api";
 import RunButton from "@/components/RunButton";
 import SummaryCards from "@/components/SummaryCards";
+import ViolationsBar from "@/components/ViolationsBar";
 import ValueBreakdown from "@/components/ValueBreakdown";
 import BoardBrief from "@/components/BoardBrief";
 import ClusterTable from "@/components/ClusterTable";
@@ -74,6 +75,74 @@ function TableIcon() {
       <rect x="3" y="4" width="18" height="16" rx="1.5" />
       <path d="M3 9h18M3 14.5h18M9 9v11" />
     </svg>
+  );
+}
+
+function ComputeIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M12 2.5v3M12 18.5v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2.5 12h3M18.5 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
+    </svg>
+  );
+}
+
+function WriteIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
+    </svg>
+  );
+}
+
+function ValidateIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 3L4 7v5c0 5.25 3.5 10.15 8 11.25C16.5 22.15 20 17.25 20 12V7l-8-4z" />
+      <path d="M9 12.2l2 2 4-4.2" />
+    </svg>
+  );
+}
+
+function StepArrow() {
+  return (
+    <div className="flex items-center justify-center flex-shrink-0 text-white/25 py-1 md:py-0 md:px-2">
+      <svg
+        width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+        strokeLinecap="round" strokeLinejoin="round" className="rotate-90 md:rotate-0" aria-hidden="true"
+      >
+        <path d="M5 12h14M13 6l6 6-6 6" />
+      </svg>
+    </div>
+  );
+}
+
+function ContractStep({
+  index,
+  icon,
+  title,
+  body,
+}: {
+  index: string;
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div className="flex-1 rounded-xl border border-white/10 bg-white/[0.035] p-5 text-left">
+      <div className="flex items-center gap-2.5 mb-3">
+        <span
+          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{ background: "rgba(189,154,74,0.12)", color: "var(--gold-soft)" }}
+        >
+          {icon}
+        </span>
+        <span className="font-mono text-[10px] text-white/35 tnum">{index}</span>
+      </div>
+      <h4 className="text-[14px] font-semibold text-white mb-1.5">{title}</h4>
+      <p className="text-[12.5px] text-white/60 leading-[1.6]">{body}</p>
+    </div>
   );
 }
 
@@ -331,6 +400,44 @@ function LandingSection({ onRun }: { onRun: () => void }) {
 
         <div className="relative z-10 w-full max-w-2xl border-t tx-gold-hairline my-12" />
 
+        {/* THE CONTRACT — the no-fabrication architecture, shown as a 3-step pipeline */}
+        <div className="relative z-10 w-full max-w-4xl mx-auto">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--gold-soft)]/75 mb-6">The Contract</p>
+          <p className="text-[15px] text-white/72 max-w-[640px] mx-auto leading-[1.8]">
+            This is enforced by machine, not by convention. Every figure moves through three
+            steps, and a bare digit anywhere it shouldn&apos;t be causes the whole output to be rejected.
+          </p>
+
+          <div className="flex flex-col md:flex-row items-stretch mt-10">
+            <ContractStep
+              index="01"
+              icon={<ComputeIcon />}
+              title="Compute"
+              body="The deterministic Python core calculates every figure — DIO, excess value, expiry risk, stockout loss. No LLM touches a number here."
+            />
+            <StepArrow />
+            <ContractStep
+              index="02"
+              icon={<WriteIcon />}
+              title="Write"
+              body="Claude reasons about root causes and drafts the board brief — but every figure is a {{path}} reference, never a typed digit."
+            />
+            <StepArrow />
+            <ContractStep
+              index="03"
+              icon={<ValidateIcon />}
+              title="Validate & Render"
+              body="A contract validator rejects any bare digit outside a reference. Only after it passes does a renderer substitute the real, computed values."
+            />
+          </div>
+
+          <p className="text-[12px] text-white/45 text-center mt-6">
+            Run the diagnosis below to see the live contract status, above the board brief.
+          </p>
+        </div>
+
+        <div className="relative z-10 w-full max-w-2xl border-t tx-gold-hairline my-12" />
+
         {/* THE DATA */}
         <div className="relative z-10 w-full max-w-5xl mx-auto">
           <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--gold-soft)]/75 mb-6">The Data</p>
@@ -519,6 +626,13 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-6 py-10 space-y-10 pb-24">
             {[
               <SummaryCards key="s" vas={data.value_at_stake} clusters={data.clusters} />,
+              <ViolationsBar
+                key="vb"
+                violations={data.violations}
+                qualityReport={data.quality_report}
+                vas={data.value_at_stake}
+                clusters={data.clusters}
+              />,
               <ValueBreakdown key="v" vas={data.value_at_stake} />,
               <BoardBrief key="b" headline={data.brief.headline} bodyMarkdown={data.brief.body_markdown} />,
               <ClusterTable key="c" clusters={data.clusters} onSkuClick={handleSkuClick} selectedSku={selectedSku} />,

@@ -130,15 +130,24 @@ export default function AskWhyPanel({
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState<string | null>(null);
   const [aiUnavailable, setAiUnavailable] = useState(false);
+  const [aiFailedContract, setAiFailedContract] = useState(false);
 
   const handleAskAi = useCallback(async () => {
     if (!skuCode) return;
     setAiLoading(true);
     setAiResult(null);
     setAiUnavailable(false);
+    setAiFailedContract(false);
     try {
       const res = await fetchAskWhy(skuCode);
-      setAiResult(res.explanation);
+      // Backend fails closed: on a contract violation, `explanation` is
+      // withheld (empty) and `violations` is non-empty. Never render an
+      // empty/fabricated explanation as if it were a normal AI answer.
+      if (res.violations.length > 0) {
+        setAiFailedContract(true);
+      } else {
+        setAiResult(res.explanation);
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       // Backend down (network error) or no live run available → show a clean
@@ -160,6 +169,7 @@ export default function AskWhyPanel({
     setPrevSku(skuCode);
     setAiResult(null);
     setAiUnavailable(false);
+    setAiFailedContract(false);
     setAiLoading(false);
   }
 
@@ -240,6 +250,21 @@ export default function AskWhyPanel({
             <div className="rounded-xl p-4 border" style={{ background: "var(--surface)", borderColor: "var(--gold-line)" }}>
               <BlockLabel>AI Explanation</BlockLabel>
               <p className="text-[13.5px] text-[var(--text-primary)]/90 leading-[1.7]">{formatLargeNumbers(aiResult)}</p>
+            </div>
+          )}
+
+          {aiFailedContract && (
+            <div
+              className="rounded-xl p-4 border"
+              style={{ background: "rgba(217,132,43,0.06)", borderColor: "var(--amber-accent)" }}
+            >
+              <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--amber-accent)] mb-2.5">
+                <span className="w-3 h-px bg-[var(--amber-accent)] flex-shrink-0" aria-hidden="true" />
+                AI Explanation Withheld
+              </p>
+              <p className="text-[13px] text-[var(--amber-accent)] leading-[1.6]">
+                This explanation failed the numbers contract and has been withheld.
+              </p>
             </div>
           )}
 

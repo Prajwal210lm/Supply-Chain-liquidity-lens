@@ -192,8 +192,15 @@ def _explain_sku(
     *,
     client: Any = None,
     model: str | None = None,
-) -> tuple[str, list[str]]:
-    """Call Claude to explain a single SKU. Returns (rendered_explanation, violations)."""
+) -> tuple[str, list[str], list[str]]:
+    """Call Claude to explain a single SKU. Returns (rendered_explanation, violations, cluster_ids).
+
+    Fails CLOSED: if the model's prose violates the numbers contract (an
+    unresolvable {{path}} placeholder or a bare digit), the raw text is
+    withheld — never rendered, never returned — so a fabricated or
+    unverifiable number can never reach the response. Callers see an empty
+    explanation plus the non-empty `violations` list instead.
+    """
     try:
         path_context, cluster_ids = _ask_why_context(run, sku_code)
     except ValueError as exc:
@@ -217,7 +224,7 @@ def _explain_sku(
 
     text = next((b.text for b in response.content if b.type == "text"), "")
     violations = prose_violations(text, run)
-    rendered = render_prose(text, run) if not violations else text
+    rendered = "" if violations else render_prose(text, run)
     return rendered, violations, cluster_ids
 
 

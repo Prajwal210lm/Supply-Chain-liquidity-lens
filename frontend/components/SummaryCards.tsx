@@ -34,9 +34,10 @@ type CardProps = {
   count: number;
   accentColor: string;
   isTotal?: boolean;
+  denominator?: string;
 };
 
-function Card({ label, value, count, accentColor, isTotal }: CardProps) {
+function Card({ label, value, count, accentColor, isTotal, denominator }: CardProps) {
   return (
     <div
       className="group relative rounded-2xl p-5 overflow-hidden transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-1"
@@ -90,9 +91,29 @@ function Card({ label, value, count, accentColor, isTotal }: CardProps) {
       >
         {count.toLocaleString()} SKUs
       </p>
+
+      {denominator && (
+        <p
+          className="text-[11px] mt-1 tnum"
+          style={{ color: isTotal ? "rgba(255,255,255,0.4)" : "var(--text-secondary)" }}
+        >
+          {denominator}
+        </p>
+      )}
     </div>
   );
 }
+
+// AED on-hand inventory value for the synthetic 600-SKU portfolio. Not part of
+// the API response (value_at_stake has no on-hand total), so it's a fixed
+// reference figure matching the dataset's known on-hand value.
+const ON_HAND_INVENTORY_AED = 106_000_000;
+
+function pct(value: number, denominator: number): number {
+  return denominator > 0 ? Math.round((value / denominator) * 100) : 0;
+}
+
+const ON_HAND_LABEL = "AED 106M on-hand";
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
@@ -112,7 +133,7 @@ export default function SummaryCards({
       <SectionHeading
         right={
           <span className="text-[11px] text-[var(--text-secondary)] tnum">
-            Portfolio: {vas.sku_count.toLocaleString()} SKUs · AED 106M on-hand ·{" "}
+            Portfolio: {vas.sku_count.toLocaleString()} SKUs · {ON_HAND_LABEL} ·{" "}
             {vas.flagged_sku_count.toLocaleString()} flagged ({flaggedPct}%)
           </span>
         }
@@ -126,18 +147,21 @@ export default function SummaryCards({
           value={vas.releasable_cash}
           count={byId["slow_excess"]?.member_count ?? 0}
           accentColor="var(--green-accent)"
+          denominator={`${pct(vas.releasable_cash, vas.total)}% of total at stake`}
         />
         <Card
           label="Write-Off Exposure"
           value={vas.write_off_exposure}
           count={byId["expiry"]?.member_count ?? 0}
           accentColor="var(--amber-accent)"
+          denominator={`${pct(vas.write_off_exposure, vas.total)}% of total at stake`}
         />
         <Card
           label="Stockout Risk"
           value={vas.stockout_margin_loss}
           count={byId["stockout"]?.member_count ?? 0}
           accentColor="var(--red-accent)"
+          denominator={`${pct(vas.stockout_margin_loss, vas.total)}% of total at stake`}
         />
         <Card
           label="Total at Stake"
@@ -145,8 +169,15 @@ export default function SummaryCards({
           count={vas.flagged_sku_count}
           accentColor="var(--navy-900)"
           isTotal
+          denominator={`= ${pct(vas.total, ON_HAND_INVENTORY_AED)}% of ${ON_HAND_LABEL} inventory`}
         />
       </div>
+
+      <p className="mt-3 text-[11px] text-[var(--text-secondary)] leading-[1.6]">
+        Totals are not strictly additive across the three dimensions: a SKU that is both
+        overstocked and near-expiry counts toward releasable cash and write-off exposure,
+        since each names a distinct action on the same units. The total is an upper bound.
+      </p>
     </section>
   );
 }

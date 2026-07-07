@@ -1,27 +1,27 @@
 {
   "brief": {
-    "headline": "Total portfolio value at stake: 23,519,703.73 AED across 294 flagged SKUs. Immediate action required.",
-    "body_markdown": "## Portfolio Value-at-Stake Summary\n\nA diagnostic run across 600 SKUs has identified **23,519,703.73 AED** of total value at stake, decomposed across three risk dimensions. Management attention is required on two executable release actions and one urgent replenishment intervention.\n\n---\n\n### Largest Release Opportunity: Slow and Excess Inventory\n\nThe single largest lever is the slow-excess cluster, comprising 191 SKUs confirmed safe-to-release, with excess units sitting above order-up-to levels. Executing supplier returns, inter-company transfers, or secondary-channel markdowns against this cluster would unlock **18,819,464.91 AED** in trapped working capital. All SKUs in this cluster have been validated against service-level guardrails and carry no stockout risk; ERP parameter updates and supplier sign-off represent the only execution dependencies. The CFO should prioritise this action first given its scale and immediate feasibility.\n\n---\n\n### Expiry Write-Off Exposure\n\nThe expiry cluster covers 30 near-expiry Pharma SKUs carrying a write-off exposure of **280,657.13 AED**. Emergency sell-through and supplier credit claims can be initiated within days, subject to regulatory dispensing approvals and shelf-life return clauses. Inaction will convert this exposure directly into P&L write-offs; this is therefore the second priority action for the commercial and supply-chain teams.\n\n---\n\n### Stockout Margin-Loss Risk\n\nThe stockout cluster, 84 SKUs, represents **4,419,581.69 AED** of margin at risk from lost sales. Every SKU in this cluster is at or below its order-up-to level; releasing any stock would breach service-level targets. This cluster is excluded from the release plan. The COO must instead direct emergency replenishment and dual-sourcing actions to arrest ongoing margin erosion.\n\n---\n\n### Summary Table\n\n| Risk Dimension | Value at Stake (AED) | Action |\n|---|---|---|\n| Slow and excess, releasable cash | 18,819,464.91 | Release (first priority) |\n| Expiry, write-off exposure | 280,657.13 | Emergency sell-through (second priority) |\n| Stockout, margin loss at risk | 4,419,581.69 | Emergency replenishment (excluded from release) |\n| **Total** | **23,519,703.73** | |\n\nAcross the full portfolio of 600 SKUs, 294 have been flagged for intervention.\n"
+    "headline": "Portfolio value at stake reaches 21,181,431.68 AED across 280 flagged SKUs — immediate action required on cash release, expiry avoidance, and stockout replenishment",
+    "body_markdown": "## Portfolio Value-at-Stake — Executive Summary\n\n**Total value at stake: 21,181,431.68 AED**\nThis figure spans 280 flagged SKUs out of a portfolio of 600. It is an upper bound across three distinct dimensions — releasable cash, write-off exposure, and stockout margin loss — not a simple additive sum. A SKU contributing to more than one dimension is counted in each relevant measure, so the total overstates the independently actionable pool.\n\n---\n\n### First Priority — Release Trapped Working Capital\n\nThe largest opportunity is the slow-excess cluster, where 16,481,192.86 AED is recoverable across 173 SKUs, all carrying `safe_to_release = true` and sitting materially above target coverage levels. Stock-return, liquidation, or MOQ renegotiation actions can be initiated immediately with no service-level risk. Freed cash is earmarked to fund the emergency replenishment required by the stockout cluster below.\n\n---\n\n### Second Priority — Expiry Write-Off Avoidance\n\nThe expiry cluster presents a write-off exposure of 280,657.13 AED across 30 near-expiry SKUs. Accelerated sell-through and supplier return programmes must be activated without delay; the most urgent batches carry the shortest remaining shelf life. Failure to act converts this exposure directly into a P&L charge.\n\n---\n\n### Third Priority — Stockout Margin Protection\n\nThe stockout cluster carries 4,419,581.69 AED of at-risk contribution margin across 84 SKUs that are at or below their reorder points. Releasing inventory from this cluster would breach service-level targets; the required action is emergency replenishment, funded by the cash freed from the slow-excess release. Without intervention, this margin loss will crystallise as sales are lost to out-of-stock conditions.\n\n---\n\n### Recommended Immediate Actions\n\n| Priority | Cluster | Value at Stake (AED) | Action |\n|---|---|---|---|\n| First | Slow Excess | 16,481,192.86 | Release excess stock; recover working capital |\n| Second | Near-Expiry | 280,657.13 | Accelerate sell-through; initiate supplier returns |\n| Third | Stockout | 4,419,581.69 | Emergency replenishment; fund from released cash |\n\nThe board is asked to authorise immediate execution of the first and second priority actions and to approve emergency purchase orders for the stockout cluster, to be funded from the working capital released by the slow-excess programme.\n"
   },
   "value_at_stake": {
-    "releasable_cash": 18819464.914825015,
+    "releasable_cash": 16481192.86347769,
     "write_off_exposure": 280657.1322802198,
     "stockout_margin_loss": 4419581.6877162075,
-    "total": 23519703.734821443,
+    "total": 21181431.683474116,
     "sku_count": 600,
-    "flagged_sku_count": 294
+    "flagged_sku_count": 280
   },
   "clusters": [
     {
       "cluster_id": "slow_excess",
       "kind": "slow_excess",
       "lever": "releasable_cash",
-      "lever_total": 18819464.91482502,
-      "member_count": 191,
+      "lever_total": 16481192.86347769,
+      "member_count": 173,
       "top_members": [
         {
           "sku_code": "SL-0414",
-          "lever_contribution": 344093.9016513743,
+          "lever_contribution": 325081.6087847206,
           "facts": {
             "sku_code": "SL-0414",
             "name": "SLOW SKU 0414",
@@ -35,7 +35,7 @@
             "avg_daily_demand": 0.05494505494505495,
             "months_of_cover": 32.24433333333334,
             "days_of_cover": 967.33,
-            "target_coverage_days": 131.09898157490136,
+            "target_coverage_days": 177.30343027386755,
             "lead_time_days": 75.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -50,17 +50,17 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 45.946759254126306,
-            "excess_value": 344093.9016513743,
+            "excess_units": 43.40805328165563,
+            "excess_value": 325081.6087847206,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 1,
-            "releasable_cash_contribution": 344093.9016513743
+            "releasable_cash_contribution": 325081.6087847206
           }
         },
         {
           "sku_code": "SL-0429",
-          "lever_contribution": 326162.81333693885,
+          "lever_contribution": 298809.92282437166,
           "facts": {
             "sku_code": "SL-0429",
             "name": "SLOW SKU 0429",
@@ -74,7 +74,7 @@
             "avg_daily_demand": 0.06043956043956044,
             "months_of_cover": 29.434363636363635,
             "days_of_cover": 883.0309090909091,
-            "target_coverage_days": 145.1059003074951,
+            "target_coverage_days": 206.990275675838,
             "lead_time_days": 87.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -89,17 +89,17 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 44.59986316822832,
-            "excess_value": 326162.81333693885,
+            "excess_units": 40.85959872288891,
+            "excess_value": 298809.92282437166,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 0,
-            "releasable_cash_contribution": 326162.81333693885
+            "releasable_cash_contribution": 298809.92282437166
           }
         },
         {
           "sku_code": "SL-0383",
-          "lever_contribution": 282106.2762210084,
+          "lever_contribution": 266970.21913693583,
           "facts": {
             "sku_code": "SL-0383",
             "name": "SLOW SKU 0383",
@@ -113,7 +113,7 @@
             "avg_daily_demand": 0.04395604395604396,
             "months_of_cover": 33.8065,
             "days_of_cover": 1014.1949999999999,
-            "target_coverage_days": 145.02247367557942,
+            "target_coverage_days": 191.65683130343814,
             "lead_time_days": 88.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -128,17 +128,17 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 38.205385772502,
-            "excess_value": 282106.2762210084,
+            "excess_units": 36.15552389874997,
+            "excess_value": 266970.21913693583,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 0,
-            "releasable_cash_contribution": 282106.2762210084
+            "releasable_cash_contribution": 266970.21913693583
           }
         },
         {
           "sku_code": "SL-0475",
-          "lever_contribution": 276045.4098747536,
+          "lever_contribution": 259274.3022314897,
           "facts": {
             "sku_code": "SL-0475",
             "name": "SLOW SKU 0475",
@@ -152,7 +152,7 @@
             "avg_daily_demand": 0.04395604395604396,
             "months_of_cover": 34.23116666666667,
             "days_of_cover": 1026.935,
-            "target_coverage_days": 133.24599435888175,
+            "target_coverage_days": 187.54196877848574,
             "lead_time_days": 77.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -167,17 +167,17 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 39.283033214994205,
-            "excess_value": 276045.4098747536,
+            "excess_units": 36.89639697676986,
+            "excess_value": 259274.3022314897,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 3,
-            "releasable_cash_contribution": 276045.4098747536
+            "releasable_cash_contribution": 259274.3022314897
           }
         },
         {
           "sku_code": "SL-0468",
-          "lever_contribution": 269857.8329261539,
+          "lever_contribution": 244190.29457706245,
           "facts": {
             "sku_code": "SL-0468",
             "name": "SLOW SKU 0468",
@@ -191,7 +191,7 @@
             "avg_daily_demand": 0.06043956043956044,
             "months_of_cover": 25.86606060606061,
             "days_of_cover": 775.9818181818183,
-            "target_coverage_days": 138.6459,
+            "target_coverage_days": 199.26613082228556,
             "lead_time_days": 81.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -206,56 +206,17 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 38.52030274725276,
-            "excess_value": 269857.8329261539,
+            "excess_units": 34.85644264260912,
+            "excess_value": 244190.29457706245,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 0,
-            "releasable_cash_contribution": 269857.8329261539
-          }
-        },
-        {
-          "sku_code": "SL-0393",
-          "lever_contribution": 257934.84164803394,
-          "facts": {
-            "sku_code": "SL-0393",
-            "name": "SLOW SKU 0393",
-            "category_name": "FMCG – Beverages",
-            "unit_cost": 7937.32,
-            "selling_price": 10010.88,
-            "unit_margin": 2073.5599999999995,
-            "on_hand_units": 42.31,
-            "inventory_value": 335828.00920000003,
-            "avg_weekly_demand": 0.4807692307692308,
-            "avg_daily_demand": 0.06868131868131869,
-            "months_of_cover": 20.53445333333333,
-            "days_of_cover": 616.0336,
-            "target_coverage_days": 142.8850694638273,
-            "lead_time_days": 86.0,
-            "abc_class": "C",
-            "xyz_class": "Z",
-            "demand_cv": 1.4416657032752078,
-            "moq": 76,
-            "moq_weeks_of_cover": 158.07999999999998,
-            "weeks_since_last_sale": 4,
-            "supplier_name": "Peninsula Consumer Goods",
-            "supplier_country": "Qatar",
-            "supplier_reliability": 0.91,
-            "service_level_target": 0.9,
-            "safe_to_release": true
-          },
-          "specifics": {
-            "excess_units": 32.49646500935252,
-            "excess_value": 257934.84164803394,
-            "is_dead": false,
-            "dead_stock_value": null,
-            "weeks_since_last_sale": 4,
-            "releasable_cash_contribution": 257934.84164803394
+            "releasable_cash_contribution": 244190.29457706245
           }
         },
         {
           "sku_code": "SL-0387",
-          "lever_contribution": 248572.71927198622,
+          "lever_contribution": 235002.3473229449,
           "facts": {
             "sku_code": "SL-0387",
             "name": "SLOW SKU 0387",
@@ -269,7 +230,7 @@
             "avg_daily_demand": 0.05219780219780219,
             "months_of_cover": 35.365473684210535,
             "days_of_cover": 1060.964210526316,
-            "target_coverage_days": 136.48880197577014,
+            "target_coverage_days": 186.95884224614136,
             "lead_time_days": 79.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -284,17 +245,56 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 48.25558451225376,
-            "excess_value": 248572.71927198622,
+            "excess_units": 45.62115933330581,
+            "excess_value": 235002.3473229449,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 1,
-            "releasable_cash_contribution": 248572.71927198622
+            "releasable_cash_contribution": 235002.3473229449
+          }
+        },
+        {
+          "sku_code": "SL-0393",
+          "lever_contribution": 233912.92309846732,
+          "facts": {
+            "sku_code": "SL-0393",
+            "name": "SLOW SKU 0393",
+            "category_name": "FMCG – Beverages",
+            "unit_cost": 7937.32,
+            "selling_price": 10010.88,
+            "unit_margin": 2073.5599999999995,
+            "on_hand_units": 42.31,
+            "inventory_value": 335828.00920000003,
+            "avg_weekly_demand": 0.4807692307692308,
+            "avg_daily_demand": 0.06868131868131869,
+            "months_of_cover": 20.53445333333333,
+            "days_of_cover": 616.0336,
+            "target_coverage_days": 186.95021161277558,
+            "lead_time_days": 86.0,
+            "abc_class": "C",
+            "xyz_class": "Z",
+            "demand_cv": 1.4416657032752078,
+            "moq": 76,
+            "moq_weeks_of_cover": 158.07999999999998,
+            "weeks_since_last_sale": 4,
+            "supplier_name": "Peninsula Consumer Goods",
+            "supplier_country": "Qatar",
+            "supplier_reliability": 0.91,
+            "service_level_target": 0.9,
+            "safe_to_release": true
+          },
+          "specifics": {
+            "excess_units": 29.470012938683,
+            "excess_value": 233912.92309846732,
+            "is_dead": false,
+            "dead_stock_value": null,
+            "weeks_since_last_sale": 4,
+            "releasable_cash_contribution": 233912.92309846732
           }
         },
         {
           "sku_code": "SL-0473",
-          "lever_contribution": 248179.20918859207,
+          "lever_contribution": 231106.53331292816,
           "facts": {
             "sku_code": "SL-0473",
             "name": "SLOW SKU 0473",
@@ -308,7 +308,7 @@
             "avg_daily_demand": 0.04945054945054945,
             "months_of_cover": 29.517703703703706,
             "days_of_cover": 885.5311111111112,
-            "target_coverage_days": 128.92266885894261,
+            "target_coverage_days": 180.97106864873456,
             "lead_time_days": 72.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -323,17 +323,17 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 37.41470318829405,
-            "excess_value": 248179.20918859207,
+            "excess_units": 34.84088122066697,
+            "excess_value": 231106.53331292816,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 2,
-            "releasable_cash_contribution": 248179.20918859207
+            "releasable_cash_contribution": 231106.53331292816
           }
         },
         {
           "sku_code": "SL-0420",
-          "lever_contribution": 244902.11965481684,
+          "lever_contribution": 230104.95672861507,
           "facts": {
             "sku_code": "SL-0420",
             "name": "SLOW SKU 0420",
@@ -347,7 +347,7 @@
             "avg_daily_demand": 0.046703296703296704,
             "months_of_cover": 28.92729411764706,
             "days_of_cover": 867.8188235294118,
-            "target_coverage_days": 142.8850694638273,
+            "target_coverage_days": 186.68609039713283,
             "lead_time_days": 86.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -362,17 +362,17 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 33.85679620635972,
-            "excess_value": 244902.11965481684,
+            "excess_units": 31.811144129804237,
+            "excess_value": 230104.95672861507,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 0,
-            "releasable_cash_contribution": 244902.11965481684
+            "releasable_cash_contribution": 230104.95672861507
           }
         },
         {
           "sku_code": "SL-0444",
-          "lever_contribution": 242569.49833872917,
+          "lever_contribution": 223563.4892031189,
           "facts": {
             "sku_code": "SL-0444",
             "name": "SLOW SKU 0444",
@@ -386,7 +386,7 @@
             "avg_daily_demand": 0.04395604395604396,
             "months_of_cover": 27.42133333333333,
             "days_of_cover": 822.6399999999999,
-            "target_coverage_days": 132.17272977208344,
+            "target_coverage_days": 186.2728014450123,
             "lead_time_days": 76.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -401,17 +401,17 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 30.350209680347977,
-            "excess_value": 242569.49833872917,
+            "excess_units": 27.972184551867585,
+            "excess_value": 223563.4892031189,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 0,
-            "releasable_cash_contribution": 242569.49833872917
+            "releasable_cash_contribution": 223563.4892031189
           }
         },
         {
           "sku_code": "SL-0406",
-          "lever_contribution": 236598.75181215364,
+          "lever_contribution": 219873.34252777626,
           "facts": {
             "sku_code": "SL-0406",
             "name": "SLOW SKU 0406",
@@ -425,7 +425,7 @@
             "avg_daily_demand": 0.03571428571428571,
             "months_of_cover": 33.13333333333333,
             "days_of_cover": 994.0,
-            "target_coverage_days": 136.46297887985492,
+            "target_coverage_days": 197.08315352104444,
             "lead_time_days": 80.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -440,56 +440,17 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 30.626322182862324,
-            "excess_value": 236598.75181215364,
+            "excess_units": 28.461315945676986,
+            "excess_value": 219873.34252777626,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 0,
-            "releasable_cash_contribution": 236598.75181215364
-          }
-        },
-        {
-          "sku_code": "SL-0435",
-          "lever_contribution": 232849.29066499916,
-          "facts": {
-            "sku_code": "SL-0435",
-            "name": "SLOW SKU 0435",
-            "category_name": "Pharma – OTC",
-            "unit_cost": 6597.45,
-            "selling_price": 8341.74,
-            "unit_margin": 1744.29,
-            "on_hand_units": 41.92,
-            "inventory_value": 276565.104,
-            "avg_weekly_demand": 0.3269230769230769,
-            "avg_daily_demand": 0.046703296703296704,
-            "months_of_cover": 29.91937254901961,
-            "days_of_cover": 897.5811764705883,
-            "target_coverage_days": 141.8779542179649,
-            "lead_time_days": 84.0,
-            "abc_class": "C",
-            "xyz_class": "Z",
-            "demand_cv": 1.5552122431061512,
-            "moq": 83,
-            "moq_weeks_of_cover": 253.88235294117646,
-            "weeks_since_last_sale": 1,
-            "supplier_name": "Levant Supply Co.",
-            "supplier_country": "Jordan",
-            "supplier_reliability": 0.75,
-            "service_level_target": 0.92,
-            "safe_to_release": true
-          },
-          "specifics": {
-            "excess_units": 35.29383180850164,
-            "excess_value": 232849.29066499916,
-            "is_dead": false,
-            "dead_stock_value": null,
-            "weeks_since_last_sale": 1,
-            "releasable_cash_contribution": 232849.29066499916
+            "releasable_cash_contribution": 219873.34252777626
           }
         },
         {
           "sku_code": "SL-0413",
-          "lever_contribution": 231209.70684559786,
+          "lever_contribution": 217323.26863865808,
           "facts": {
             "sku_code": "SL-0413",
             "name": "SLOW SKU 0413",
@@ -503,7 +464,7 @@
             "avg_daily_demand": 0.06043956043956044,
             "months_of_cover": 27.07387878787879,
             "days_of_cover": 812.2163636363637,
-            "target_coverage_days": 127.87473660922416,
+            "target_coverage_days": 168.97624504414102,
             "lead_time_days": 72.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -518,17 +479,56 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 41.36130712801393,
-            "excess_value": 231209.70684559786,
+            "excess_units": 38.87715002480466,
+            "excess_value": 217323.26863865808,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 0,
-            "releasable_cash_contribution": 231209.70684559786
+            "releasable_cash_contribution": 217323.26863865808
+          }
+        },
+        {
+          "sku_code": "SL-0435",
+          "lever_contribution": 216584.0873994754,
+          "facts": {
+            "sku_code": "SL-0435",
+            "name": "SLOW SKU 0435",
+            "category_name": "Pharma – OTC",
+            "unit_cost": 6597.45,
+            "selling_price": 8341.74,
+            "unit_margin": 1744.29,
+            "on_hand_units": 41.92,
+            "inventory_value": 276565.104,
+            "avg_weekly_demand": 0.3269230769230769,
+            "avg_daily_demand": 0.046703296703296704,
+            "months_of_cover": 29.91937254901961,
+            "days_of_cover": 897.5811764705883,
+            "target_coverage_days": 194.66603222003283,
+            "lead_time_days": 84.0,
+            "abc_class": "C",
+            "xyz_class": "Z",
+            "demand_cv": 1.5552122431061512,
+            "moq": 83,
+            "moq_weeks_of_cover": 253.88235294117646,
+            "weeks_since_last_sale": 1,
+            "supplier_name": "Levant Supply Co.",
+            "supplier_country": "Jordan",
+            "supplier_reliability": 0.75,
+            "service_level_target": 0.92,
+            "safe_to_release": true
+          },
+          "specifics": {
+            "excess_units": 32.82845453917429,
+            "excess_value": 216584.0873994754,
+            "is_dead": false,
+            "dead_stock_value": null,
+            "weeks_since_last_sale": 1,
+            "releasable_cash_contribution": 216584.0873994754
           }
         },
         {
           "sku_code": "SL-0449",
-          "lever_contribution": 225771.23252166415,
+          "lever_contribution": 212200.20434227953,
           "facts": {
             "sku_code": "SL-0449",
             "name": "SLOW SKU 0449",
@@ -542,7 +542,7 @@
             "avg_daily_demand": 0.03571428571428571,
             "months_of_cover": 38.136,
             "days_of_cover": 1144.0800000000002,
-            "target_coverage_days": 116.00961598464197,
+            "target_coverage_days": 177.80655971406253,
             "lead_time_days": 61.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -557,17 +557,17 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 36.71679942911993,
-            "excess_value": 225771.23252166415,
+            "excess_units": 34.50976572449777,
+            "excess_value": 212200.20434227953,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 0,
-            "releasable_cash_contribution": 225771.23252166415
+            "releasable_cash_contribution": 212200.20434227953
           }
         },
         {
           "sku_code": "SL-0452",
-          "lever_contribution": 222089.99505115903,
+          "lever_contribution": 209200.9380849197,
           "facts": {
             "sku_code": "SL-0452",
             "name": "SLOW SKU 0452",
@@ -581,7 +581,7 @@
             "avg_daily_demand": 0.046703296703296704,
             "months_of_cover": 30.112078431372552,
             "days_of_cover": 903.3623529411766,
-            "target_coverage_days": 122.49034811243173,
+            "target_coverage_days": 167.8084803014156,
             "lead_time_days": 67.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -596,17 +596,17 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 36.469296928815005,
-            "excess_value": 222089.99505115903,
+            "excess_units": 34.35279075515367,
+            "excess_value": 209200.9380849197,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 0,
-            "releasable_cash_contribution": 222089.99505115903
+            "releasable_cash_contribution": 209200.9380849197
           }
         },
         {
           "sku_code": "SL-0454",
-          "lever_contribution": 217985.67171531677,
+          "lever_contribution": 203275.89069881992,
           "facts": {
             "sku_code": "SL-0454",
             "name": "SLOW SKU 0454",
@@ -620,7 +620,7 @@
             "avg_daily_demand": 0.03846153846153846,
             "months_of_cover": 33.956,
             "days_of_cover": 1018.6800000000001,
-            "target_coverage_days": 147.1583251478154,
+            "target_coverage_days": 205.96903911505558,
             "lead_time_days": 90.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -635,56 +635,17 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 33.520064417391715,
-            "excess_value": 217985.67171531677,
+            "excess_units": 31.25811388019017,
+            "excess_value": 203275.89069881992,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 0,
-            "releasable_cash_contribution": 217985.67171531677
-          }
-        },
-        {
-          "sku_code": "GF-0351",
-          "lever_contribution": 217940.32288615243,
-          "facts": {
-            "sku_code": "GF-0351",
-            "name": "FMCG SKU 0351",
-            "category_name": "FMCG – Personal Care",
-            "unit_cost": 1353.84,
-            "selling_price": 1711.02,
-            "unit_margin": 357.18000000000006,
-            "on_hand_units": 526.53,
-            "inventory_value": 712837.3751999999,
-            "avg_weekly_demand": 40.11038461538462,
-            "avg_daily_demand": 5.730054945054945,
-            "months_of_cover": 3.0629723743131927,
-            "days_of_cover": 91.88917122939579,
-            "target_coverage_days": 63.795308106889486,
-            "lead_time_days": 14.0,
-            "abc_class": "A",
-            "xyz_class": "X",
-            "demand_cv": 0.4475982808169147,
-            "moq": 45,
-            "moq_weeks_of_cover": 1.1219039765263168,
-            "weeks_since_last_sale": 0,
-            "supplier_name": "Peninsula Consumer Goods",
-            "supplier_country": "Qatar",
-            "supplier_reliability": 0.91,
-            "service_level_target": 0.9,
-            "safe_to_release": true
-          },
-          "specifics": {
-            "excess_units": 160.979379310814,
-            "excess_value": 217940.32288615243,
-            "is_dead": false,
-            "dead_stock_value": null,
-            "weeks_since_last_sale": 0,
-            "releasable_cash_contribution": 217940.32288615243
+            "releasable_cash_contribution": 203275.89069881992
           }
         },
         {
           "sku_code": "SL-0436",
-          "lever_contribution": 209312.89611207595,
+          "lever_contribution": 195007.60539453916,
           "facts": {
             "sku_code": "SL-0436",
             "name": "SLOW SKU 0436",
@@ -698,7 +659,7 @@
             "avg_daily_demand": 0.06043956043956044,
             "months_of_cover": 26.958060606060602,
             "days_of_cover": 808.7418181818181,
-            "target_coverage_days": 135.40950719327725,
+            "target_coverage_days": 181.4277632927218,
             "lead_time_days": 78.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -713,17 +674,17 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 40.69590890590082,
-            "excess_value": 209312.89611207595,
+            "excess_units": 37.91458573505527,
+            "excess_value": 195007.60539453916,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 2,
-            "releasable_cash_contribution": 209312.89611207595
+            "releasable_cash_contribution": 195007.60539453916
           }
         },
         {
           "sku_code": "SL-0471",
-          "lever_contribution": 208896.52222356398,
+          "lever_contribution": 194601.56015942086,
           "facts": {
             "sku_code": "SL-0471",
             "name": "SLOW SKU 0471",
@@ -737,7 +698,7 @@
             "avg_daily_demand": 0.03571428571428571,
             "months_of_cover": 33.936,
             "days_of_cover": 1018.08,
-            "target_coverage_days": 135.39110996523166,
+            "target_coverage_days": 195.7942419234729,
             "lead_time_days": 79.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -752,17 +713,17 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 31.524603215527442,
-            "excess_value": 208896.52222356398,
+            "excess_units": 29.367348502733112,
+            "excess_value": 194601.56015942086,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 3,
-            "releasable_cash_contribution": 208896.52222356398
+            "releasable_cash_contribution": 194601.56015942086
           }
         },
         {
           "sku_code": "SL-0367",
-          "lever_contribution": 201607.03542857143,
+          "lever_contribution": 186216.43729617074,
           "facts": {
             "sku_code": "SL-0367",
             "name": "SLOW SKU 0367",
@@ -776,7 +737,7 @@
             "avg_daily_demand": 0.04120879120879121,
             "months_of_cover": 25.649866666666664,
             "days_of_cover": 769.496,
-            "target_coverage_days": 137.5344,
+            "target_coverage_days": 185.77808852025964,
             "lead_time_days": 81.0,
             "abc_class": "C",
             "xyz_class": "Z",
@@ -791,12 +752,51 @@
             "safe_to_release": true
           },
           "specifics": {
-            "excess_units": 26.042373626373628,
-            "excess_value": 201607.03542857143,
+            "excess_units": 24.05430953900029,
+            "excess_value": 186216.43729617074,
             "is_dead": false,
             "dead_stock_value": null,
             "weeks_since_last_sale": 11,
-            "releasable_cash_contribution": 201607.03542857143
+            "releasable_cash_contribution": 186216.43729617074
+          }
+        },
+        {
+          "sku_code": "SL-0390",
+          "lever_contribution": 181643.52799357337,
+          "facts": {
+            "sku_code": "SL-0390",
+            "name": "SLOW SKU 0390",
+            "category_name": "FMCG – Beverages",
+            "unit_cost": 7542.67,
+            "selling_price": 9037.85,
+            "unit_margin": 1495.1800000000003,
+            "on_hand_units": 32.0,
+            "inventory_value": 241365.44,
+            "avg_weekly_demand": 0.3076923076923077,
+            "avg_daily_demand": 0.04395604395604396,
+            "months_of_cover": 24.266666666666666,
+            "days_of_cover": 728.0,
+            "target_coverage_days": 180.13163748993466,
+            "lead_time_days": 68.0,
+            "abc_class": "C",
+            "xyz_class": "Z",
+            "demand_cv": 1.8624580532189174,
+            "moq": 180,
+            "moq_weeks_of_cover": 585.0,
+            "weeks_since_last_sale": 6,
+            "supplier_name": "Apex FMCG",
+            "supplier_country": "UAE",
+            "supplier_reliability": 0.98,
+            "service_level_target": 0.9,
+            "safe_to_release": true
+          },
+          "specifics": {
+            "excess_units": 24.082125824618256,
+            "excess_value": 181643.52799357337,
+            "is_dead": false,
+            "dead_stock_value": null,
+            "weeks_since_last_sale": 6,
+            "releasable_cash_contribution": 181643.52799357337
           }
         }
       ]
@@ -824,7 +824,7 @@
             "avg_daily_demand": 1.054945054945055,
             "months_of_cover": 3.162881944444444,
             "days_of_cover": 94.88645833333332,
-            "target_coverage_days": 93.13984459348367,
+            "target_coverage_days": 96.93550948506599,
             "lead_time_days": 38.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -836,7 +836,7 @@
             "supplier_country": "UAE",
             "supplier_reliability": 0.92,
             "service_level_target": 0.95,
-            "safe_to_release": true
+            "safe_to_release": false
           },
           "specifics": {
             "nearest_days_to_expiry": 37.0,
@@ -869,7 +869,7 @@
             "avg_daily_demand": 0.6675824175824177,
             "months_of_cover": 2.906008230452675,
             "days_of_cover": 87.18024691358025,
-            "target_coverage_days": 88.59133277183103,
+            "target_coverage_days": 96.46299943537707,
             "lead_time_days": 34.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -914,7 +914,7 @@
             "avg_daily_demand": 1.0137362637362637,
             "months_of_cover": 3.0852863595302624,
             "days_of_cover": 92.55859078590787,
-            "target_coverage_days": 87.44923109729041,
+            "target_coverage_days": 90.26239786693127,
             "lead_time_days": 33.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -959,7 +959,7 @@
             "avg_daily_demand": 0.804945054945055,
             "months_of_cover": 3.4176245733788395,
             "days_of_cover": 102.52873720136519,
-            "target_coverage_days": 86.30495955499002,
+            "target_coverage_days": 91.4403265123087,
             "lead_time_days": 32.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -1009,7 +1009,7 @@
             "avg_daily_demand": 0.9532967032967034,
             "months_of_cover": 1.9815446685878964,
             "days_of_cover": 59.44634005763689,
-            "target_coverage_days": 86.30495955499002,
+            "target_coverage_days": 92.04598682345132,
             "lead_time_days": 32.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -1054,7 +1054,7 @@
             "avg_daily_demand": 0.7307692307692307,
             "months_of_cover": 3.3015438596491227,
             "days_of_cover": 99.04631578947368,
-            "target_coverage_days": 98.0429960657637,
+            "target_coverage_days": 105.27155704845316,
             "lead_time_days": 41.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -1066,7 +1066,7 @@
             "supplier_country": "UAE",
             "supplier_reliability": 0.92,
             "service_level_target": 0.97,
-            "safe_to_release": true
+            "safe_to_release": false
           },
           "specifics": {
             "nearest_days_to_expiry": 36.0,
@@ -1104,7 +1104,7 @@
             "avg_daily_demand": 0.8214285714285714,
             "months_of_cover": 2.7902608695652176,
             "days_of_cover": 83.70782608695653,
-            "target_coverage_days": 87.44923109729041,
+            "target_coverage_days": 93.99529265654922,
             "lead_time_days": 33.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -1149,7 +1149,7 @@
             "avg_daily_demand": 0.9423076923076923,
             "months_of_cover": 1.8224761904761906,
             "days_of_cover": 54.674285714285716,
-            "target_coverage_days": 94.27239720756552,
+            "target_coverage_days": 99.83350982251699,
             "lead_time_days": 39.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -1194,7 +1194,7 @@
             "avg_daily_demand": 0.5714285714285714,
             "months_of_cover": 4.237333333333334,
             "days_of_cover": 127.12,
-            "target_coverage_days": 89.96685432382505,
+            "target_coverage_days": 98.39561299485412,
             "lead_time_days": 34.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -1244,7 +1244,7 @@
             "avg_daily_demand": 1.0576923076923077,
             "months_of_cover": 2.5045090909090906,
             "days_of_cover": 75.13527272727272,
-            "target_coverage_days": 96.89522364648937,
+            "target_coverage_days": 103.71840976292839,
             "lead_time_days": 40.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -1289,7 +1289,7 @@
             "avg_daily_demand": 0.945054945054945,
             "months_of_cover": 3.978251937984496,
             "days_of_cover": 119.34755813953488,
-            "target_coverage_days": 102.61678995624482,
+            "target_coverage_days": 106.80289970161976,
             "lead_time_days": 45.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -1339,7 +1339,7 @@
             "avg_daily_demand": 0.5082417582417582,
             "months_of_cover": 3.9744864864864864,
             "days_of_cover": 119.2345945945946,
-            "target_coverage_days": 95.40326104642193,
+            "target_coverage_days": 106.8299335005828,
             "lead_time_days": 40.0,
             "abc_class": "C",
             "xyz_class": "Y",
@@ -1389,7 +1389,7 @@
             "avg_daily_demand": 0.7994505494505494,
             "months_of_cover": 2.6038717067583046,
             "days_of_cover": 78.11615120274914,
-            "target_coverage_days": 92.00553608608755,
+            "target_coverage_days": 96.76269021169476,
             "lead_time_days": 37.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -1439,7 +1439,7 @@
             "avg_daily_demand": 0.6895604395604396,
             "months_of_cover": 2.1849667994687914,
             "days_of_cover": 65.54900398406375,
-            "target_coverage_days": 88.80437342560873,
+            "target_coverage_days": 98.72525021751619,
             "lead_time_days": 33.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -1484,7 +1484,7 @@
             "avg_daily_demand": 0.8928571428571429,
             "months_of_cover": 2.69472,
             "days_of_cover": 80.8416,
-            "target_coverage_days": 99.1889771055655,
+            "target_coverage_days": 107.99837572064712,
             "lead_time_days": 42.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -1529,7 +1529,7 @@
             "avg_daily_demand": 0.8351648351648351,
             "months_of_cover": 3.873087719298246,
             "days_of_cover": 116.19263157894737,
-            "target_coverage_days": 89.96685432382505,
+            "target_coverage_days": 99.84514486686683,
             "lead_time_days": 34.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -1579,7 +1579,7 @@
             "avg_daily_demand": 1.0576923076923077,
             "months_of_cover": 2.951393939393939,
             "days_of_cover": 88.54181818181817,
-            "target_coverage_days": 94.27239720756552,
+            "target_coverage_days": 97.07970561551959,
             "lead_time_days": 39.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -1629,7 +1629,7 @@
             "avg_daily_demand": 0.554945054945055,
             "months_of_cover": 2.6068646864686467,
             "days_of_cover": 78.2059405940594,
-            "target_coverage_days": 90.8694,
+            "target_coverage_days": 100.03391196368761,
             "lead_time_days": 36.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -1674,7 +1674,7 @@
             "avg_daily_demand": 0.8021978021978021,
             "months_of_cover": 2.018205479452055,
             "days_of_cover": 60.54616438356165,
-            "target_coverage_days": 98.78633062862436,
+            "target_coverage_days": 103.23382454109131,
             "lead_time_days": 43.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -1719,7 +1719,7 @@
             "avg_daily_demand": 0.6346153846153847,
             "months_of_cover": 1.7890101010101007,
             "days_of_cover": 53.670303030303025,
-            "target_coverage_days": 99.1889771055655,
+            "target_coverage_days": 109.39146949138718,
             "lead_time_days": 42.0,
             "abc_class": "C",
             "xyz_class": "X",
@@ -1773,7 +1773,7 @@
             "avg_daily_demand": 17.638489010989012,
             "months_of_cover": 0.23783216336651397,
             "days_of_cover": 7.134964900995419,
-            "target_coverage_days": 119.25280000000001,
+            "target_coverage_days": 120.82276398484099,
             "lead_time_days": 64.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -1809,7 +1809,7 @@
             "avg_daily_demand": 20.68252747252747,
             "months_of_cover": 0.21116052373842834,
             "days_of_cover": 6.33481571215285,
-            "target_coverage_days": 125.72263490006071,
+            "target_coverage_days": 127.8716441710992,
             "lead_time_days": 70.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -1845,7 +1845,7 @@
             "avg_daily_demand": 19.06598901098901,
             "months_of_cover": 0.2651667670506233,
             "days_of_cover": 7.9550030115186985,
-            "target_coverage_days": 121.41176761938145,
+            "target_coverage_days": 122.20075401221963,
             "lead_time_days": 66.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -1881,7 +1881,7 @@
             "avg_daily_demand": 19.172445054945054,
             "months_of_cover": 0.20084379721163853,
             "days_of_cover": 6.025313916349156,
-            "target_coverage_days": 120.33258953021942,
+            "target_coverage_days": 124.21942944155727,
             "lead_time_days": 65.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -1917,7 +1917,7 @@
             "avg_daily_demand": 18.53206043956044,
             "months_of_cover": 0.3705470323926311,
             "days_of_cover": 11.116410971778933,
-            "target_coverage_days": 121.41176761938145,
+            "target_coverage_days": 123.93555451781712,
             "lead_time_days": 66.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -1953,7 +1953,7 @@
             "avg_daily_demand": 18.299725274725272,
             "months_of_cover": 0.2673082023489614,
             "days_of_cover": 8.019246070468842,
-            "target_coverage_days": 108.41779816305277,
+            "target_coverage_days": 113.64814499509853,
             "lead_time_days": 54.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -1989,7 +1989,7 @@
             "avg_daily_demand": 19.93153846153846,
             "months_of_cover": 0.1971916689179628,
             "days_of_cover": 5.915750067538884,
-            "target_coverage_days": 114.92723091299885,
+            "target_coverage_days": 117.27874390759317,
             "lead_time_days": 60.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -2025,7 +2025,7 @@
             "avg_daily_demand": 21.45782967032967,
             "months_of_cover": 0.31149468994257845,
             "days_of_cover": 9.344840698277354,
-            "target_coverage_days": 125.72263490006071,
+            "target_coverage_days": 127.26741790449492,
             "lead_time_days": 70.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -2061,7 +2061,7 @@
             "avg_daily_demand": 16.528104395604394,
             "months_of_cover": 0.22497034410807656,
             "days_of_cover": 6.749110323242297,
-            "target_coverage_days": 111.675867812243,
+            "target_coverage_days": 113.13200432786637,
             "lead_time_days": 57.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -2097,7 +2097,7 @@
             "avg_daily_demand": 20.74989010989011,
             "months_of_cover": 0.33156802101427785,
             "days_of_cover": 9.947040630428335,
-            "target_coverage_days": 116.00961598464197,
+            "target_coverage_days": 115.61745789752003,
             "lead_time_days": 61.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -2133,7 +2133,7 @@
             "avg_daily_demand": 19.041346153846153,
             "months_of_cover": 0.23076099580871587,
             "days_of_cover": 6.922829874261476,
-            "target_coverage_days": 98.59723415989119,
+            "target_coverage_days": 101.36005364376057,
             "lead_time_days": 45.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -2169,7 +2169,7 @@
             "avg_daily_demand": 17.307362637362637,
             "months_of_cover": 0.34280208511908167,
             "days_of_cover": 10.28406255357245,
-            "target_coverage_days": 111.675867812243,
+            "target_coverage_days": 113.98959517832962,
             "lead_time_days": 57.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -2205,7 +2205,7 @@
             "avg_daily_demand": 16.380384615384617,
             "months_of_cover": 0.35866068703186266,
             "days_of_cover": 10.75982061095588,
-            "target_coverage_days": 101.87918525992109,
+            "target_coverage_days": 104.0310821774446,
             "lead_time_days": 48.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -2241,7 +2241,7 @@
             "avg_daily_demand": 14.577142857142857,
             "months_of_cover": 0.26381484385208415,
             "days_of_cover": 7.914445315562525,
-            "target_coverage_days": 105.15245467402052,
+            "target_coverage_days": 108.83538969822196,
             "lead_time_days": 51.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -2277,7 +2277,7 @@
             "avg_daily_demand": 19.950302197802195,
             "months_of_cover": 0.3512728744916972,
             "days_of_cover": 10.538186234750915,
-            "target_coverage_days": 107.33018883410192,
+            "target_coverage_days": 107.40908030326634,
             "lead_time_days": 53.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -2313,7 +2313,7 @@
             "avg_daily_demand": 16.018214285714286,
             "months_of_cover": 0.299429964400645,
             "days_of_cover": 8.982898932019351,
-            "target_coverage_days": 123.56834433958319,
+            "target_coverage_days": 125.77869318170906,
             "lead_time_days": 68.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -2349,7 +2349,7 @@
             "avg_daily_demand": 20.427307692307693,
             "months_of_cover": 0.2631444835658652,
             "days_of_cover": 7.894334506975955,
-            "target_coverage_days": 105.15245467402052,
+            "target_coverage_days": 109.05395903887272,
             "lead_time_days": 51.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -2385,7 +2385,7 @@
             "avg_daily_demand": 15.987307692307693,
             "months_of_cover": 0.3060761341127978,
             "days_of_cover": 9.182284023383934,
-            "target_coverage_days": 114.92723091299885,
+            "target_coverage_days": 118.80200907182285,
             "lead_time_days": 60.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -2421,7 +2421,7 @@
             "avg_daily_demand": 16.10480769230769,
             "months_of_cover": 0.21954106712838578,
             "days_of_cover": 6.586232013851573,
-            "target_coverage_days": 120.33258953021942,
+            "target_coverage_days": 125.69960533177081,
             "lead_time_days": 65.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -2457,7 +2457,7 @@
             "avg_daily_demand": 18.413846153846155,
             "months_of_cover": 0.2965341019856852,
             "days_of_cover": 8.896023059570556,
-            "target_coverage_days": 108.41779816305277,
+            "target_coverage_days": 109.44726823259205,
             "lead_time_days": 54.0,
             "abc_class": "A",
             "xyz_class": "X",
@@ -2493,12 +2493,12 @@
     "issues": []
   },
   "violations": {
-    "diagnose": [],
-    "recommend": [
-      "prose placeholder '{{clusters[0].members_shown}}' does not resolve to a fact"
+    "diagnose": [
+      "prose placeholder '{{clusters[2].facts}}' does not resolve to a fact"
     ],
+    "recommend": [],
     "prioritise": [
-      "release item for cluster 'expiry' breaches the guardrail: 20 member(s) not safe to release (e.g. ['PE-0497', 'PE-0502', 'PE-0506'])"
+      "release item for cluster 'expiry' breaches the guardrail: 24 member(s) not safe to release (e.g. ['PE-0485', 'PE-0497', 'PE-0502'])"
     ],
     "narrate": []
   }

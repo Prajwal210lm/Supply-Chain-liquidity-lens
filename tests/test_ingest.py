@@ -10,10 +10,14 @@ Conventions (stated):
     from both windows. Only complete prior weeks are counted.
   * avg_weekly_demand = mean of quantity_sold over the weeks present in the
     window. Zero sales rows -> 0.0.
-  * target_coverage_days = lead + REVIEW_PERIOD + z(service_level)*sqrt(lead):
+  * target_coverage_days = (lead + REVIEW_PERIOD)
+      + z(service_level) * demand_cv * sqrt(7 * (lead + REVIEW_PERIOD)):
     the periodic-review order-up-to level (reorder point + one replenishment
-    cycle of cover). REVIEW_PERIOD is a named policy parameter; without it the
-    target is just a reorder point and flags normal post-replenishment stock.
+    cycle of cover) plus a safety buffer scaled to demand variability.
+    REVIEW_PERIOD is a named policy parameter; without it the target is just
+    a reorder point and flags normal post-replenishment stock. demand_cv is
+    the weekly coefficient of variation; None/0 (no variability data) means
+    zero safety buffer, not an assumed one.
 """
 
 import math
@@ -117,19 +121,41 @@ def test_days_to_expiry():
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# target coverage = lead + REVIEW_PERIOD(45) + z(service_level) * sqrt(lead).
-#   0.95 -> z 1.6449 ; lead 64 -> sqrt 8 -> safety 13.1592 -> target 122.1592
-#   0.90 -> z 1.2816 ; lead 36 -> sqrt 6 -> safety  7.6896 -> target  88.6896
+# target coverage = (lead + REVIEW_PERIOD(45)) + z * demand_cv * sqrt(7*(lead+45)).
+# With demand_cv omitted/None (no variability evidence), the safety term is 0:
+#   0.95 -> lead 64 -> protection 109 -> target 109.0 (no buffer)
+#   0.90 -> lead 36 -> protection  81 -> target  81.0 (no buffer)
 # ─────────────────────────────────────────────────────────────────────────────
 def test_service_level_z_lookup():
     assert service_level_z(0.95) == pytest.approx(1.6449)
     assert service_level_z(0.90) == pytest.approx(1.2816)
 
 
-def test_target_coverage_from_lead_and_service_level():
-    assert compute_target_coverage_days(64, 0.95) == pytest.approx(64 + 45 + 1.6449 * 8)
-    assert compute_target_coverage_days(64, 0.95) == pytest.approx(122.1592)
-    assert compute_target_coverage_days(36, 0.90) == pytest.approx(88.6896)
+def test_target_coverage_with_no_variability_evidence_has_zero_buffer():
+    # demand_cv omitted (defaults to None -> 0): no evidence of variability,
+    # so no safety buffer beyond cycle stock + the review cycle.
+    assert compute_target_coverage_days(64, 0.95) == pytest.approx(109.0)
+    assert compute_target_coverage_days(36, 0.90) == pytest.approx(81.0)
+    # Explicit demand_cv=0.0 is identical to omitting it.
+    assert compute_target_coverage_days(64, 0.95, demand_cv=0.0) == pytest.approx(109.0)
+
+
+def test_target_coverage_scales_with_demand_variability():
+    """Two SKUs with IDENTICAL lead time and service level but different demand
+    variability must get different safety buffers — the defect this fixes:
+    the old formula (z * sqrt(lead), no demand_cv term) gave every SKU at a
+    given lead time the same buffer regardless of how erratic its demand was."""
+    lead, service_level, z = 30, 0.95, 1.6449
+
+    stable = compute_target_coverage_days(lead, service_level, demand_cv=0.0)     # X-class
+    volatile = compute_target_coverage_days(lead, service_level, demand_cv=1.2)   # Z-class
+
+    assert stable == pytest.approx(lead + REVIEW_PERIOD_DAYS)  # zero buffer
+    assert volatile > stable                                    # erratic demand -> bigger buffer
+
+    protection_days = lead + REVIEW_PERIOD_DAYS
+    expected_volatile = protection_days + z * 1.2 * math.sqrt(7 * protection_days)
+    assert volatile == pytest.approx(expected_volatile)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -155,7 +181,10 @@ def test_assemble_sku_multi_batch():
     assert sku.selling_price == pytest.approx(130)
     assert sku.is_perishable is True
     assert sku.lead_time_days == pytest.approx(64)
-    assert sku.target_coverage_days == pytest.approx(122.1592)  # 64 + 45 + 1.6449*8
+    # demand [10,20,30,40] -> mean 25, std sqrt(125)=11.180339887498949, cv=0.447213595499958
+    # protection = 64+45=109; safety = 1.6449 * cv * sqrt(7*109) = 20.31967546802852
+    assert sku.demand_cv == pytest.approx(0.447213595499958)
+    assert sku.target_coverage_days == pytest.approx(129.31967546802852)
 
     # Batches assembled with calendar days-to-expiry, order preserved.
     assert len(sku.batches) == 2
@@ -183,7 +212,9 @@ def test_assemble_sku_zero_sales_rows():
 
     assert sku.on_hand == pytest.approx(50.0)
     assert sku.avg_weekly_demand == pytest.approx(0.0)
-    assert sku.target_coverage_days == pytest.approx(88.6896)  # 36 + 45 + 1.2816*6
+    # No sales rows -> demand_cv is None -> zero safety buffer -> just lead + review.
+    assert sku.demand_cv is None
+    assert sku.target_coverage_days == pytest.approx(81.0)  # 36 + 45
     assert sku.recent_weekly_sales == []
     # No demand -> coverage is undefined, and no movement -> dead.
     assert days_of_cover(sku.on_hand, sku.avg_weekly_demand) is None

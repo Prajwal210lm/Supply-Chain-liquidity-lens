@@ -10,10 +10,15 @@ Conventions:
     cycle). Dead-stock no-movement window = DEAD_STOCK_WINDOW_WEEKS (default 26).
   * The current partial week (the week containing reference_date) is EXCLUDED
     from both windows; only complete prior weeks are counted.
-  * target_coverage_days = lead + REVIEW_PERIOD_DAYS + z(service_level)*sqrt(lead):
-    the periodic-review order-up-to level (reorder point plus one replenishment
-    cycle of cover). Safety stock is a service-level-scaled simplification — a
-    fuller model would use demand standard deviation.
+  * target_coverage_days = (lead + REVIEW_PERIOD_DAYS)
+      + z(service_level) * demand_cv * sqrt(7 * (lead + REVIEW_PERIOD_DAYS)):
+    the periodic-review order-up-to level (cycle stock across the lead time
+    plus one replenishment cycle) plus a safety buffer scaled to demand
+    variability. demand_cv is the coefficient of variation of WEEKLY demand
+    (the only grain the data provides); a SKU with stable demand (low CV)
+    gets a small buffer, an erratic one (high CV) gets a large one, and a
+    perfectly deterministic SKU (CV = 0) gets none beyond cycle stock. See
+    compute_target_coverage_days for the derivation.
 """
 
 from __future__ import annotations
@@ -123,18 +128,46 @@ def service_level_z(service_level: float) -> float:
     return SERVICE_LEVEL_Z[nearest]
 
 
-def compute_target_coverage_days(lead_time_days: float, service_level: float) -> float:
+def compute_target_coverage_days(
+    lead_time_days: float, service_level: float, demand_cv: float | None = None
+) -> float:
     """Periodic-review order-up-to level, in days of cover.
 
     = cycle stock (lead time) + one replenishment cycle (REVIEW_PERIOD_DAYS)
-      + service-level safety buffer (z * sqrt(lead)).
+      + a safety buffer scaled to demand variability.
 
     The review-period term is what stops normal post-replenishment stock from
     being flagged as excess; without it this collapses to a reorder point.
+
+    Derivation of the safety-buffer term. Standard periodic-review safety
+    stock (in units) is ``z * sigma_d * sqrt(protection_days)``, where
+    ``sigma_d`` is the standard deviation of DAILY demand and
+    ``protection_days = lead_time_days + REVIEW_PERIOD_DAYS`` is the interval
+    you are exposed to demand uncertainty for under periodic review (you don't
+    get to react until the next review, then wait out the lead time). Dividing
+    by average daily demand to express the buffer as DAYS of cover:
+
+        safety_days = z * CV_d * sqrt(protection_days)
+
+    where ``CV_d = sigma_d / avg_daily_demand`` is the daily coefficient of
+    variation. The data is only observed at WEEKLY grain, so ``demand_cv``
+    here is ``CV_w`` (weekly), not ``CV_d``. Assuming demand is i.i.d. across
+    the days within a week (the same aggregation assumption implicit in
+    treating weeks as the sampling unit elsewhere), variance scales linearly
+    with time so ``CV_d = CV_w * sqrt(7)``, giving:
+
+        safety_days = z * CV_w * sqrt(7 * protection_days)
+
+    A SKU with no observed variability (``demand_cv`` is ``None`` — no sales
+    history, or degenerate to 0) gets a safety buffer of exactly 0: with no
+    evidence of variability, there is no statistical basis to hold a buffer
+    beyond cycle stock and the review cycle, so none is assumed.
     """
     z = service_level_z(service_level)
-    safety_days = z * math.sqrt(lead_time_days)
-    return lead_time_days + REVIEW_PERIOD_DAYS + safety_days
+    cv = demand_cv if demand_cv is not None else 0.0
+    protection_days = lead_time_days + REVIEW_PERIOD_DAYS
+    safety_days = z * cv * math.sqrt(7 * protection_days)
+    return protection_days + safety_days
 
 
 # ── Assembly ─────────────────────────────────────────────────────────────────
@@ -162,7 +195,7 @@ def assemble_sku(
         unit_cost=float(sku_row.unit_cost),
         selling_price=float(sku_row.selling_price),
         target_coverage_days=compute_target_coverage_days(
-            sku_row.lead_time_days, sku_row.service_level_target
+            sku_row.lead_time_days, sku_row.service_level_target, cv
         ),
         lead_time_days=float(sku_row.lead_time_days),
         is_perishable=bool(sku_row.is_perishable),

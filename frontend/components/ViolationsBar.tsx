@@ -1,72 +1,143 @@
 "use client";
 
 import { useState } from "react";
+import { Cluster, QualityReport, ValueAtStake } from "@/lib/api";
+
+type ViolationEntry = { node: string; msg: string };
+
+const NODE_LABELS: Record<string, string> = {
+  diagnose: "Diagnose",
+  recommend: "Recommend",
+  prioritise: "Prioritise",
+  narrate: "Narrate",
+};
+
+// Verifies the one reconciliation invariant that's fully checkable from the API
+// response as shipped: per lever, the (untruncated) cluster.lever_total values
+// sum to the portfolio value-at-stake. This mirrors backend.facts.reconciliation_errors'
+// second check. The first check there (member sum == cluster total) needs every
+// member, but the API only ships top_members (max 20 per cluster) — so it isn't
+// re-derivable client-side and isn't attempted here.
+function checkReconciliation(
+  vas: ValueAtStake,
+  clusters: Cluster[]
+): { reconciled: boolean; detail: string } {
+  const byLever: Record<string, number> = {};
+  for (const c of clusters) {
+    byLever[c.lever] = (byLever[c.lever] ?? 0) + c.lever_total;
+  }
+  const pairs: [string, number][] = [
+    ["releasable_cash", vas.releasable_cash],
+    ["write_off_exposure", vas.write_off_exposure],
+    ["stockout_margin_loss", vas.stockout_margin_loss],
+  ];
+  const TOL = 0.01;
+  const reconciled = pairs.every(([lever, total]) => Math.abs((byLever[lever] ?? 0) - total) <= TOL);
+  return {
+    reconciled,
+    detail: reconciled
+      ? "Cluster totals sum exactly to the portfolio value-at-stake across all three levers."
+      : "Cluster totals do not sum to the portfolio value-at-stake for at least one lever.",
+  };
+}
 
 export default function ViolationsBar({
   violations,
+  qualityReport,
+  vas,
+  clusters,
 }: {
   violations: Record<string, string[]>;
+  qualityReport: QualityReport;
+  vas: ValueAtStake;
+  clusters: Cluster[];
 }) {
   const [expanded, setExpanded] = useState(false);
 
-  const allViolations = Object.entries(violations).flatMap(([node, msgs]) =>
+  const allViolations: ViolationEntry[] = Object.entries(violations).flatMap(([node, msgs]) =>
     msgs.map((m) => ({ node, msg: m }))
   );
   const count = allViolations.length;
-  const clean = count === 0;
+  const { reconciled, detail } = checkReconciliation(vas, clusters);
+  const clean = count === 0 && reconciled;
+  const hasIssues = qualityReport.issues.length > 0;
+  const hasDetail = !clean || hasIssues;
+  const accent = clean ? "var(--green-accent)" : "var(--amber-accent)";
 
   return (
-    <div
-      className={`fixed bottom-0 left-0 right-0 z-30 border-t text-sm
-        ${clean ? "bg-green-50 border-green-200" : "bg-amber-50 border-amber-300"}`}
+    <section
+      className="rounded-2xl overflow-hidden"
+      style={{ background: "var(--card)", boxShadow: "var(--elev-2)", border: "1px solid rgba(15,26,46,0.05)" }}
     >
-      {/* Collapsed bar */}
       <button
-        onClick={() => !clean && setExpanded((e) => !e)}
-        className={`w-full flex items-center gap-3 px-6 py-3 text-left
-          ${clean ? "cursor-default" : "hover:bg-amber-100 transition-colors"}`}
+        onClick={() => hasDetail && setExpanded((e) => !e)}
+        aria-expanded={expanded}
+        className={`w-full flex flex-wrap items-center gap-x-3 gap-y-1 px-6 py-4 text-left transition-colors duration-200 ${
+          hasDetail ? "cursor-pointer hover:bg-black/[0.015]" : "cursor-default"
+        }`}
       >
-        <span
-          className={`inline-block w-2 h-2 rounded-full flex-shrink-0
-            ${clean ? "bg-green-500" : "bg-amber-500"}`}
-        />
-        <span
-          className={`font-medium ${clean ? "text-green-700" : "text-amber-700"}`}
-        >
+        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: accent }} />
+        <span className="text-[13px] font-semibold" style={{ color: accent }}>
           {clean
-            ? "0 contract violations"
-            : `${count} contract violation${count > 1 ? "s" : ""}`}
+            ? "Contract clean — 0 violations, totals reconciled"
+            : `${count} contract violation${count === 1 ? "" : "s"}${!reconciled ? " · totals do not reconcile" : ""}`}
         </span>
-        {!clean && (
-          <span className="ml-auto text-amber-500 text-xs">
-            {expanded ? "▲ hide" : "▼ show"}
+        <span className="text-[11px] text-[var(--text-secondary)]">
+          Every figure traced to the deterministic core · {qualityReport.total_skus.toLocaleString()} SKUs validated
+        </span>
+        {hasDetail && (
+          <span className="ml-auto text-[11px] text-[var(--text-secondary)] flex-shrink-0">
+            {expanded ? "Hide detail" : "Show detail"}
           </span>
         )}
       </button>
 
-      {/* Expanded list */}
-      {expanded && !clean && (
-        <div className="border-t border-amber-200 px-6 py-4 max-h-48 overflow-y-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="text-amber-600 font-semibold">
-                <th className="text-left pb-2 w-28">Node</th>
-                <th className="text-left pb-2">Violation</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-amber-100">
-              {allViolations.map(({ node, msg }, i) => (
-                <tr key={i}>
-                  <td className="py-1.5 pr-4 font-mono text-amber-700 align-top">
-                    {node}
-                  </td>
-                  <td className="py-1.5 text-amber-800">{msg}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {expanded && hasDetail && (
+        <div className="border-t border-black/5 px-6 py-4 space-y-4">
+          {count > 0 && (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--amber-accent)] mb-2">
+                Contract Violations
+              </p>
+              <div className="max-h-48 overflow-y-auto">
+                <table className="w-full text-[12px] border-collapse">
+                  <thead>
+                    <tr className="text-[var(--text-secondary)]">
+                      <th className="text-left pb-2 pr-4 w-28 font-semibold">Node</th>
+                      <th className="text-left pb-2 font-semibold">Violation</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-black/5">
+                    {allViolations.map(({ node, msg }, i) => (
+                      <tr key={i}>
+                        <td className="py-1.5 pr-4 font-mono text-[var(--amber-accent)] align-top">
+                          {NODE_LABELS[node] ?? node}
+                        </td>
+                        <td className="py-1.5 text-[var(--text-primary)]/80">{msg}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {!reconciled && <p className="text-[12px] text-[var(--amber-accent)]">{detail}</p>}
+
+          {hasIssues && (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--text-secondary)] mb-2">
+                Data Quality Notes
+              </p>
+              <ul className="text-[12px] text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+                {qualityReport.issues.map((issue, i) => (
+                  <li key={i}>{issue}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
-    </div>
+    </section>
   );
 }

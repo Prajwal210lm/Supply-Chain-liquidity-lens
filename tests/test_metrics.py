@@ -19,6 +19,7 @@ from analytics.metrics import (
     excess_value,
     is_dead,
     months_of_cover,
+    releasable_cash_contribution,
     sku_expiry_at_risk_units,
     sku_expiry_writeoff,
     stockout_margin_loss,
@@ -221,3 +222,36 @@ def test_fixture7_overlap_dead_and_excess_counted_once():
     vas = value_at_stake([ov1, ov2])
     assert vas.releasable_cash == pytest.approx(120_000.0)
     assert vas.releasable_cash != pytest.approx(220_000.0)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Fixture 8 — Overlap: one perishable SKU is BOTH excess AND near-expiry.
+#   DELIBERATE non-de-dup: the SKU contributes to both releasable_cash and
+#   write_off_exposure, because the two levers name mutually exclusive ACTIONS
+#   on the same units (return/markdown for cash vs. let it expire). The grand
+#   total is therefore an upper bound, not strictly additive. This test locks
+#   that decision so it is not silently "fixed" into a de-dup later.
+# ─────────────────────────────────────────────────────────────────────────────
+def test_fixture8_excess_and_expiry_overlap_is_not_deduped():
+    # OV-3: 100 on hand, daily 1 (weekly 7), target 30 -> target_stock 30 ->
+    # excess 70. Perishable, one batch of 100 expiring in 40 days -> FEFO
+    # sells 40, 60 units at risk (same batch shape as fixture 4's X1-A).
+    ov3 = Sku("OV-3", on_hand=100, avg_weekly_demand=7, unit_cost=400,
+              is_perishable=True, target_coverage_days=30,
+              batches=[Batch(100, 40)])
+
+    assert excess_units(100, 7, 30) == pytest.approx(70.0)
+    assert sku_expiry_at_risk_units(ov3) == pytest.approx(60.0)
+
+    # Releasable cash counts the FULL excess (70 * 400 = 28,000) — the at-risk
+    # units are NOT subtracted. Write-off counts the at-risk units (24,000).
+    assert releasable_cash_contribution(ov3) == pytest.approx(28_000.0)
+    assert sku_expiry_writeoff(ov3) == pytest.approx(24_000.0)
+
+    # The roll-up carries both, and total = releasable + write-off = 52,000.
+    # This is the upper-bound total, by design (the 60 overlapping units count
+    # toward both a potential cash release and a potential write-off).
+    vas = value_at_stake([ov3])
+    assert vas.releasable_cash == pytest.approx(28_000.0)
+    assert vas.write_off_exposure == pytest.approx(24_000.0)
+    assert vas.total == pytest.approx(52_000.0)

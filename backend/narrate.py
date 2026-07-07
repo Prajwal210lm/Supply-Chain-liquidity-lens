@@ -46,11 +46,18 @@ numbers.
 REFERENCING FACTS. Use real paths only, e.g. portfolio_value_at_stake.total,
 portfolio_value_at_stake.releasable_cash, clusters[0].lever_total.
 
+TOTAL IS AN UPPER BOUND. The three dimensions are not strictly additive: a SKU
+that is both overstocked and near-expiry contributes to releasable cash AND
+write-off exposure, because each names a distinct action on the same units. When
+you state the total, note in words that it is an upper bound across the three
+dimensions, not a simple sum of independent amounts.
+
 YOUR TASK. Write a concise, board-ready brief:
 - headline: one line stating the total value at stake (as a placeholder).
 - body_markdown: a short markdown brief covering the total value at stake, the
   largest release opportunity, expiry write-off exposure, and stockout risk —
-  every figure a {{path}} placeholder, in CFO/COO language.
+  every figure a {{path}} placeholder, in CFO/COO language. Include the
+  upper-bound caveat when presenting the total.
 - figures_cited: the list of fact paths you referenced.
 
 OUTPUT. Call submit_board_brief. No digits anywhere; numbers are placeholders
