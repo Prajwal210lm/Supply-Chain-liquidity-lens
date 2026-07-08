@@ -67,7 +67,11 @@ export default function ViolationsBar({
   return (
     <section
       className="rounded-2xl overflow-hidden"
-      style={{ background: "var(--card)", boxShadow: "var(--elev-2)", border: "1px solid rgba(15,26,46,0.05)" }}
+      style={{
+        background: "var(--card)",
+        boxShadow: "var(--elev-3)",
+        border: clean ? "1px solid var(--gold-line)" : "1px solid var(--hairline)",
+      }}
     >
       <button
         onClick={() => hasDetail && setExpanded((e) => !e)}
@@ -76,7 +80,10 @@ export default function ViolationsBar({
           hasDetail ? "cursor-pointer hover:bg-black/[0.015]" : "cursor-default"
         }`}
       >
-        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: accent }} />
+        {/* Signature element: a verification pulse fires once on mount. */}
+        <span className="relative w-2 h-2 flex-shrink-0 verify-ring" style={{ color: accent }}>
+          <span className="absolute inset-0 rounded-full" style={{ backgroundColor: accent }} />
+        </span>
         <span className="text-[13px] font-semibold" style={{ color: accent }}>
           {clean
             ? "Contract clean — 0 violations, totals reconciled"

@@ -5,16 +5,18 @@ import { Cluster, fmtFull } from "@/lib/api";
 import { SectionHeading } from "@/components/SummaryCards";
 import { formatAED } from "@/lib/format";
 
-// Sophisticated, considered palette — navy/gold/teal/risk, no purple slop
+// Sophisticated, considered palette — navy/gold/teal/risk, no purple slop.
+// Every entry is a token reference, so re-theming the palette in globals.css
+// re-skins this chart automatically.
 const COLORS = [
-  "#1C3B5E", // navy
-  "#0E9F6E", // green
-  "#BD9A4A", // gold
-  "#2E5C8A", // steel blue
-  "#D9842B", // amber
-  "#2A9D8F", // teal
-  "#51617A", // slate
-  "#9C6B3F", // bronze
+  "var(--navy-700)",
+  "var(--green-accent)",
+  "var(--gold)",
+  "var(--navy-600)",
+  "var(--amber-accent)",
+  "var(--teal-accent)",
+  "var(--text-secondary)",
+  "var(--bronze-accent)",
 ];
 
 type CategoryRow = {
@@ -59,7 +61,7 @@ function CustomTooltip({ active, payload }: TooltipProps) {
   );
 }
 
-const TH = "pb-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--text-secondary)]/80";
+const TH = "pb-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--text-muted)]";
 
 export default function CategoryBreakdown({ clusters }: { clusters: Cluster[] }) {
   const rows = aggregateCategories(clusters);
@@ -70,7 +72,7 @@ export default function CategoryBreakdown({ clusters }: { clusters: Cluster[] })
   return (
     <section
       className="rounded-2xl p-6"
-      style={{ background: "var(--card)", boxShadow: "var(--elev-2)", border: "1px solid rgba(15,26,46,0.05)" }}
+      style={{ background: "var(--card)", boxShadow: "var(--elev-2)", border: "1px solid var(--hairline)" }}
     >
       <SectionHeading>Category Breakdown</SectionHeading>
       <div className="flex flex-col sm:flex-row items-center gap-8">

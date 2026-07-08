@@ -34,7 +34,7 @@ export default function BoardBrief({
 
       <article
         className="relative rounded-2xl overflow-hidden"
-        style={{ background: "var(--card)", boxShadow: "var(--elev-3)", border: "1px solid rgba(15,26,46,0.06)" }}
+        style={{ background: "var(--card)", boxShadow: "var(--elev-3)", border: "1px solid var(--hairline)" }}
       >
         {/* Gold spine */}
         <span className="absolute left-0 inset-y-0 w-[3px]" style={{ background: "linear-gradient(180deg, var(--gold), var(--gold-soft))" }} />

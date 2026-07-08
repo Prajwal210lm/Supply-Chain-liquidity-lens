@@ -1,6 +1,8 @@
 "use client";
 
 import { Cluster, ValueAtStake, fmtCompact } from "@/lib/api";
+import { useInView } from "@/lib/useInView";
+import { useCountUp } from "@/lib/useCountUp";
 
 // ── Shared section heading ────────────────────────────────────────────────────
 
@@ -38,29 +40,29 @@ type CardProps = {
 };
 
 function Card({ label, value, count, accentColor, isTotal, denominator }: CardProps) {
+  const { ref, inView } = useInView<HTMLDivElement>();
+  const animated = useCountUp(value, inView);
+
   return (
     <div
-      className="group relative rounded-2xl p-5 overflow-hidden transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-1"
+      ref={ref}
+      className={`group relative rounded-2xl p-5 overflow-hidden transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-1 ${
+        isTotal
+          ? "shadow-[var(--elev-3)] hover:shadow-[var(--elev-4)]"
+          : "shadow-[var(--elev-2)] hover:shadow-[var(--elev-3)]"
+      }`}
       style={
         isTotal
-          ? {
-              background: "linear-gradient(155deg, var(--navy-900), var(--navy-800))",
-              boxShadow: "var(--elev-3)",
-              border: "1px solid var(--gold-line)",
-            }
-          : {
-              background: "var(--card)",
-              boxShadow: "var(--elev-2)",
-              border: "1px solid rgba(15,26,46,0.05)",
-            }
+          ? { background: "linear-gradient(155deg, var(--navy-900), var(--navy-800))", border: "1px solid var(--gold-line)" }
+          : { background: "var(--card)", border: "1px solid var(--hairline)" }
       }
     >
       {/* Top accent line */}
       <span
-        className="absolute inset-x-0 top-0 h-[3px]"
+        className="absolute inset-x-0 top-0 h-[3px] transition-[background] duration-300"
         style={{
           background: isTotal
-            ? "linear-gradient(90deg, var(--gold), var(--gold-soft))"
+            ? "linear-gradient(90deg, var(--gold-deep), var(--gold-soft))"
             : `linear-gradient(90deg, ${accentColor}, ${accentColor}44)`,
         }}
       />
@@ -74,12 +76,12 @@ function Card({ label, value, count, accentColor, isTotal, denominator }: CardPr
 
       <p
         className="font-display text-[42px] leading-none mb-1.5 tnum"
-        style={{ color: isTotal ? "#FFFFFF" : accentColor }}
+        style={{ color: isTotal ? "var(--text-on-dark)" : accentColor }}
       >
-        {fmtCompact(value)}
+        {fmtCompact(animated)}
         <span
           className="font-sans text-[14px] font-normal ml-1.5"
-          style={{ color: isTotal ? "rgba(255,255,255,0.5)" : "var(--text-secondary)" }}
+          style={{ color: isTotal ? "var(--text-on-dark-muted)" : "var(--text-secondary)" }}
         >
           AED
         </span>
@@ -87,7 +89,7 @@ function Card({ label, value, count, accentColor, isTotal, denominator }: CardPr
 
       <p
         className="text-[12px] tnum"
-        style={{ color: isTotal ? "rgba(255,255,255,0.55)" : "var(--text-secondary)" }}
+        style={{ color: isTotal ? "var(--text-on-dark-secondary)" : "var(--text-secondary)" }}
       >
         {count.toLocaleString()} SKUs
       </p>
@@ -95,7 +97,7 @@ function Card({ label, value, count, accentColor, isTotal, denominator }: CardPr
       {denominator && (
         <p
           className="text-[11px] mt-1 tnum"
-          style={{ color: isTotal ? "rgba(255,255,255,0.4)" : "var(--text-secondary)" }}
+          style={{ color: isTotal ? "var(--text-on-dark-muted)" : "var(--text-secondary)" }}
         >
           {denominator}
         </p>

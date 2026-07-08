@@ -6,22 +6,14 @@ import {
   ClusterMember,
   ClusterId,
   CLUSTER_LABELS,
+  CLUSTER_ACCENT,
+  CLUSTER_ACCENT_FALLBACK,
   LEVER_LABELS,
   fmtFull,
   fmtDecimal,
 } from "@/lib/api";
 import { SectionHeading } from "@/components/SummaryCards";
 import { formatAED } from "@/lib/format";
-
-// ── Cluster accent colours ────────────────────────────────────────────────────
-
-const CLUSTER_STYLE: Record<string, { bg: string; text: string; color: string }> = {
-  slow_excess: { bg: "rgba(14,159,110,0.12)", text: "#0E9F6E", color: "#0E9F6E" },
-  expiry: { bg: "rgba(217,132,43,0.12)", text: "#D9842B", color: "#D9842B" },
-  stockout: { bg: "rgba(214,69,61,0.12)", text: "#D6453D", color: "#D6453D" },
-};
-
-const FALLBACK_STYLE = { bg: "rgba(81,97,122,0.12)", text: "#51617A", color: "#51617A" };
 
 // ── Per-cluster column configuration ─────────────────────────────────────────
 
@@ -48,7 +40,7 @@ function Chevron({ open }: { open: boolean }) {
   );
 }
 
-const TH = "px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--text-secondary)]/80";
+const TH = "px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--text-muted)]";
 
 // ── Cluster section ───────────────────────────────────────────────────────────
 
@@ -67,27 +59,27 @@ function ClusterSection({
   const cover = COVER_CONFIG[cluster.cluster_id];
   const label = CLUSTER_LABELS[cluster.cluster_id];
   const lever = LEVER_LABELS[cluster.lever] ?? cluster.lever;
-  const style = CLUSTER_STYLE[cluster.cluster_id] ?? FALLBACK_STYLE;
+  const accent = CLUSTER_ACCENT[cluster.cluster_id] ?? CLUSTER_ACCENT_FALLBACK;
 
   return (
     <div
       className="relative rounded-2xl overflow-hidden transition-shadow duration-300"
-      style={{ background: "var(--card)", boxShadow: open ? "var(--elev-2)" : "var(--elev-1)", border: "1px solid rgba(15,26,46,0.05)" }}
+      style={{ background: "var(--card)", boxShadow: open ? "var(--elev-2)" : "var(--elev-1)", border: "1px solid var(--hairline)" }}
     >
       {/* Left accent spine */}
-      <span className="absolute left-0 inset-y-0 w-[3px]" style={{ background: style.color }} />
+      <span className="absolute left-0 inset-y-0 w-[3px]" style={{ background: accent.color }} />
 
       {/* Header */}
       <button
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         className="w-full flex items-center justify-between gap-4 pl-5 pr-4 py-4 text-left cursor-pointer transition-colors duration-200 hover:bg-black/[0.015]"
-        style={open ? { background: "rgba(15,26,46,0.02)" } : undefined}
+        style={open ? { background: "var(--hairline-soft)" } : undefined}
       >
         <div className="flex items-center gap-3 min-w-0">
           <span
             className="inline-block rounded-full px-3 py-1 text-[12px] font-semibold flex-shrink-0"
-            style={{ backgroundColor: style.bg, color: style.text }}
+            style={{ backgroundColor: accent.bg, color: accent.color }}
           >
             {label}
           </span>
@@ -96,7 +88,7 @@ function ClusterSection({
           </span>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
-          <span className="font-display text-[21px] tnum" style={{ color: style.color }}>
+          <span className="font-display text-[21px] tnum" style={{ color: accent.color }}>
             {formatAED(cluster.lever_total)}
           </span>
           <span className="text-[var(--text-secondary)]">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Cluster, ClusterMember, SkuFacts, CLUSTER_LABELS, fetchAskWhy, fmtFull, fmtDecimal } from "@/lib/api";
+import { Cluster, ClusterMember, SkuFacts, CLUSTER_LABELS, CLUSTER_ACCENT, CLUSTER_ACCENT_FALLBACK, fetchAskWhy, fmtFull, fmtDecimal } from "@/lib/api";
 import { formatAED } from "@/lib/format";
 
 // Round large comma-formatted numbers in AI prose (18,819,464.91 -> 18.8M,
@@ -36,12 +36,6 @@ function findSku(clusters: Cluster[], skuCode: string): FoundSku[] {
   }
   return results;
 }
-
-const CLUSTER_STYLE: Record<string, { bg: string; text: string }> = {
-  slow_excess: { bg: "rgba(14,159,110,0.14)", text: "#10B981" },
-  expiry: { bg: "rgba(217,132,43,0.14)", text: "#E0982C" },
-  stockout: { bg: "rgba(214,69,61,0.14)", text: "#EF6B63" },
-};
 
 // ── Key-value row ─────────────────────────────────────────────────────────────
 
@@ -231,11 +225,11 @@ export default function AskWhyPanel({
           )}
 
           {isOpen && found.map(({ member, clusterId, clusterLabel }) => {
-            const style = CLUSTER_STYLE[clusterId] ?? { bg: "rgba(81,97,122,0.14)", text: "#51617A" };
+            const accent = CLUSTER_ACCENT[clusterId as keyof typeof CLUSTER_ACCENT] ?? CLUSTER_ACCENT_FALLBACK;
             return (
               <div key={clusterId} className="space-y-4">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[11.5px] px-2.5 py-0.5 rounded-full font-semibold" style={{ backgroundColor: style.bg, color: style.text }}>
+                  <span className="text-[11.5px] px-2.5 py-0.5 rounded-full font-semibold" style={{ backgroundColor: accent.bg, color: accent.color }}>
                     {clusterLabel}
                   </span>
                   <span className="text-[12px] text-[var(--text-secondary)] tnum">{fmtFull(member.lever_contribution)} AED at stake</span>

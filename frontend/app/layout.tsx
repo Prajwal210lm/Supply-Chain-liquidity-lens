@@ -27,10 +27,26 @@ const plexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
+const TITLE = "Liquidity Lens — Working Capital Diagnostic";
+const DESCRIPTION =
+  "A working-capital diagnostic for GCC distributors. Where cash is trapped, why, and what to release first.";
+
 export const metadata: Metadata = {
-  title: "Liquidity Lens — Working Capital Diagnostic",
-  description:
-    "A working-capital diagnostic for GCC distributors. Where cash is trapped, why, and what to release first.",
+  // TODO: set to the real deployed origin once live, e.g. new URL("https://liquidity-lens.vercel.app"),
+  // so social crawlers resolve the OG image as an absolute URL.
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    type: "website",
+    siteName: "Liquidity Lens",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
 };
 
 export default function RootLayout({

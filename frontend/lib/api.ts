@@ -150,3 +150,21 @@ export const LEVER_LABELS: Record<string, string> = {
   write_off_exposure: "Write-Off Exposure",
   stockout_margin_loss: "Margin at Risk",
 };
+
+// ── Cluster accent (single source) ───────────────────────────────────────────
+// Every component that colors a cluster badge/bar/spine reads from here, so
+// the same cluster always renders the same color everywhere — previously
+// ClusterTable/SupplierAnalysis and AskWhyPanel each hand-typed their own
+// (slightly different) hex values for the same three clusters.
+export type ClusterAccent = { color: string; bg: string };
+
+export const CLUSTER_ACCENT: Record<ClusterId, ClusterAccent> = {
+  slow_excess: { color: "var(--green-accent)", bg: "var(--green-accent-bg)" },
+  expiry: { color: "var(--amber-accent)", bg: "var(--amber-accent-bg)" },
+  stockout: { color: "var(--red-accent)", bg: "var(--red-accent-bg)" },
+};
+
+export const CLUSTER_ACCENT_FALLBACK: ClusterAccent = {
+  color: "var(--text-secondary)",
+  bg: "var(--slate-accent-bg)",
+};
