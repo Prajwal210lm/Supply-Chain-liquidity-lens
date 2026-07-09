@@ -18,16 +18,16 @@ Outputs a prioritised action plan with assigned owners and a board brief written
 
 | Risk cluster | Value at stake (AED) | SKUs |
 |---|---|---|
-| Slow-moving excess | 18,819,465 | 191 |
+| Slow-moving excess | 16,481,193 | 173 |
 | Near-expiry pharma | 280,657 | 30 |
 | Stockout risk | 4,419,582 | 84 |
-| **Total** | **23,519,704** | **294** |
+| **Total** | **21,181,432** | **280** |
 
 ## Architecture
 
 Two layers, strictly separated:
 
-**Deterministic analytics core** (Python). Computes every number: DIO, months of cover, excess above order-up-to level, dead stock, FEFO expiry risk, stockout shortfall, ABC-XYZ classification, and value-at-stake rollup with overlap de-duplication. Tested against hand-verified fixtures. 89 automated tests (85 run by default; 4 integration tests require a live Anthropic API key).
+**Deterministic analytics core** (Python). Computes every number: DIO, months of cover, excess above order-up-to level, dead stock, FEFO expiry risk, stockout shortfall, ABC-XYZ classification, and value-at-stake rollup with overlap de-duplication. Tested against hand-verified fixtures. 92 automated tests (88 run by default; 4 integration tests require a live Anthropic API key).
 
 **AI reasoning layer** (LangGraph + Claude). Six-node state machine: validate, compute, diagnose, recommend, prioritise, narrate. The LLM reasons about root causes, writes recommendations, and drafts the board brief. It never calculates. Every number enters the output through `{{path}}` placeholders that reference the deterministic core, enforced by a contract validator that rejects any AI output containing a bare digit.
 
@@ -59,7 +59,7 @@ Two layers, strictly separated:
 - Python 3.13, FastAPI, PostgreSQL (Docker)
 - LangGraph, Claude (Anthropic API)
 - Next.js, Tailwind CSS
-- 89 automated tests, 85 run by default; 4 integration tests (skip-by-default, require an Anthropic API key)
+- 92 automated tests, 88 run by default; 4 integration tests (skip-by-default, require an Anthropic API key)
 
 ## Setup
 
@@ -156,7 +156,7 @@ liquidity-lens/
 │   ├── app/page.tsx     # Main dashboard
 │   ├── components/      # React components
 │   └── lib/api.ts       # API client
-├── tests/               # 89 tests across 12 files
+├── tests/               # 92 tests across 12 files
 ├── data/                # Cached pipeline responses
 ├── Context.md           # Project spec
 ├── CLAUDE.md            # Claude Code operating rules
