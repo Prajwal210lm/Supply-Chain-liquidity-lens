@@ -86,7 +86,7 @@ export default function ViolationsBar({
         </span>
         <span className="text-[13px] font-semibold" style={{ color: accent }}>
           {clean
-            ? "Contract clean — 0 violations, totals reconciled"
+            ? "Contract clean, 0 violations, totals reconciled"
             : `${count} contract violation${count === 1 ? "" : "s"}${!reconciled ? " · totals do not reconcile" : ""}`}
         </span>
         <span className="text-[11px] text-[var(--text-secondary)]">

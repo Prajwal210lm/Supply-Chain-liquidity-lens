@@ -138,7 +138,7 @@ function ClusterSection({
                         {m.facts.sku_code}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-[13px] text-[var(--text-primary)]/80">{m.facts.category_name ?? "—"}</td>
+                    <td className="px-4 py-2.5 text-[13px] text-[var(--text-primary)]/80">{m.facts.category_name ?? "N/A"}</td>
                     <td className="px-4 py-2.5 text-right font-mono text-[12.5px] text-[var(--text-primary)] font-medium tnum">
                       {fmtFull(m.lever_contribution)}
                     </td>
@@ -146,7 +146,7 @@ function ClusterSection({
                       {cover.getValue(m)}
                     </td>
                     <td className="px-4 py-2.5 text-[13px] text-[var(--text-secondary)] max-w-32 truncate">
-                      {m.facts.supplier_name ?? "—"}
+                      {m.facts.supplier_name ?? "N/A"}
                     </td>
                     <td className="px-4 py-2.5 text-center">
                       <span className="inline-block rounded-md bg-[var(--surface-2)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--text-secondary)]">

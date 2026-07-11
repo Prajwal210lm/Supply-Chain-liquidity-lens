@@ -61,9 +61,9 @@ function FactsBlock({ facts }: { facts: SkuFacts }) {
   return (
     <div>
       <BlockLabel>SKU Facts</BlockLabel>
-      <KV label="Category" value={facts.category_name ?? "—"} />
-      <KV label="Supplier" value={facts.supplier_name ?? "—"} />
-      <KV label="Supplier Reliability" value={facts.supplier_reliability != null ? `${(facts.supplier_reliability * 100).toFixed(0)}%` : "—"} />
+      <KV label="Category" value={facts.category_name ?? "N/A"} />
+      <KV label="Supplier" value={facts.supplier_name ?? "N/A"} />
+      <KV label="Supplier Reliability" value={facts.supplier_reliability != null ? `${(facts.supplier_reliability * 100).toFixed(0)}%` : "N/A"} />
       <KV label="ABC · XYZ Class" value={`${facts.abc_class ?? "?"} · ${facts.xyz_class ?? "?"}`} />
       <KV label="Unit Cost (AED)" value={fmtFull(facts.unit_cost)} />
       <KV label="Selling Price (AED)" value={fmtFull(facts.selling_price)} />
@@ -205,7 +205,7 @@ export default function AskWhyPanel({
         >
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] mb-1 text-[var(--gold-soft)]/85">SKU Detail</p>
-            <p className="font-mono text-[15px] font-semibold text-white tnum">{skuCode ?? "—"}</p>
+            <p className="font-mono text-[15px] font-semibold text-white tnum">{skuCode ?? "N/A"}</p>
           </div>
           <button
             onClick={onClose}

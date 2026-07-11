@@ -481,8 +481,8 @@ function LandingSection({ onRun }: { onRun: () => void }) {
           <p className="text-[15px] text-[var(--text-on-dark-secondary)] leading-[1.8] mt-5">
             Large distributors in the GCC hold tens of millions in on-hand inventory across hundreds
             of SKUs. Cash gets trapped in slow-moving stock, pharma batches creep toward expiry
-            unnoticed, and fast-moving items stock out while excess sits on the shelf next to them —
-            three symptoms of the same underlying failure: nobody looked closely enough, recently
+            unnoticed, and fast-moving items stock out while excess sits on the shelf next to them.
+            Three symptoms of the same underlying failure: nobody looked closely enough, recently
             enough, to catch it in time.
           </p>
         </Reveal>
@@ -498,7 +498,7 @@ function LandingSection({ onRun }: { onRun: () => void }) {
           />
           <p className="text-[15px] text-[var(--text-on-dark-secondary)] leading-[1.8] mt-5">
             Liquidity Lens reads raw inventory, sales, and supplier data for the full 600-SKU
-            portfolio (AED 106M on-hand), then works out — item by item — which stock has been
+            portfolio (AED 106M on-hand), then works out, item by item, which stock has been
             sitting too long, which is about to expire, and which is dangerously low. Analysts call
             this ABC-XYZ classification: ranking by value, then by how predictable demand is. It
             calibrates every target stock level to that item&apos;s own lead time and demand variability.
@@ -528,14 +528,14 @@ function LandingSection({ onRun }: { onRun: () => void }) {
               index="01"
               icon={<ComputeIcon />}
               title="Compute"
-              body="The deterministic Python core calculates every figure — DIO, excess value, expiry risk, stockout loss. No LLM touches a number here."
+              body="The deterministic Python core calculates every figure. DIO, excess value, expiry risk, stockout loss. No LLM touches a number here."
             />
             <StepArrow />
             <ContractStep
               index="02"
               icon={<WriteIcon />}
               title="Write"
-              body="Claude reasons about root causes and drafts the board brief — but every figure is a {{path}} reference, never a typed digit."
+              body="Claude reasons about root causes and drafts the board brief, but every figure is a {{path}} reference, never a typed digit."
             />
             <StepArrow />
             <ContractStep
@@ -592,7 +592,7 @@ function LandingSection({ onRun }: { onRun: () => void }) {
           <SectionIntro
             kicker="What It Finds"
             headline="Three risks, one root cause: inventory policy."
-            intro="Every flagged SKU falls into exactly one of three categories below — never a fourth, never ambiguous."
+            intro="Every flagged SKU falls into exactly one of three categories below. Never a fourth, never ambiguous."
             maxWidth="580px"
           />
         </Reveal>
@@ -651,12 +651,14 @@ function LandingSection({ onRun }: { onRun: () => void }) {
 
 // ── Footer ────────────────────────────────────────────────────────────────────
 // Contact links matter more than anything decorative — nothing here should be
-// more than one click away. GITHUB/LINKEDIN/EMAIL are placeholders: swap them
-// for the real destinations before shipping (README uses the same convention).
+// more than one click away.
 
-const GITHUB_URL = "https://github.com/<your-username>/liquidity-lens";
-const LINKEDIN_URL = "https://linkedin.com/in/<your-profile>";
-const EMAIL_ADDRESS = "your.email@example.com";
+const GITHUB_URL = "https://github.com/Prajwal210lm";
+// TODO: confirm this is the correct LinkedIn slug — README (from an earlier
+// session) has a different one ("prajwal-b-006050228"). Expected format:
+// https://www.linkedin.com/in/<your-slug>/ — paste the right one here.
+const LINKEDIN_URL = "https://www.linkedin.com/in/prajwal-b-0b5b3b1b0/";
+const EMAIL_ADDRESS = "prajwal210lm@gmail.com";
 
 function Footer() {
   return (
@@ -670,8 +672,8 @@ function Footer() {
             href={GITHUB_URL}
             target="_blank"
             rel="noreferrer"
-            aria-label="GitHub repository"
-            title="GitHub repository"
+            aria-label="GitHub profile"
+            title="GitHub profile"
             className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 cursor-pointer"
           >
             <GitHubIcon />

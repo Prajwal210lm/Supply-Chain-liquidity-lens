@@ -73,8 +73,8 @@ Two layers, strictly separated:
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/<your-username>/liquidity-lens.git
-cd liquidity-lens
+git clone https://github.com/Prajwal210lm/Supply-Chain-liquidity-lens.git
+cd Supply-Chain-liquidity-lens
 
 # Python dependencies
 pip install -r requirements.txt
@@ -170,6 +170,14 @@ liquidity-lens/
 2. **Spelled-out numbers**: The digit validator does not catch numbers written as words (e.g. "sixty-three thousand"). Mitigated by prompt design and required evidence references.
 
 3. **Ask-why requires fresh run**: The SKU drill-down AI explanation only works after a live pipeline run, not from cached data.
+
+## Author
+
+Prajwal B
+
+- GitHub: [Prajwal210lm](https://github.com/Prajwal210lm)
+- LinkedIn: [prajwal-b](https://www.linkedin.com/in/prajwal-b-006050228/)
+- Email: prajwal210lm@gmail.com
 
 ## License
 

@@ -135,7 +135,7 @@ export function fmtDecimal(
   value: number | null | undefined,
   decimals = 1
 ): string {
-  if (value == null) return "—";
+  if (value == null) return "N/A";
   return value.toFixed(decimals);
 }
 
