@@ -653,11 +653,8 @@ function LandingSection({ onRun }: { onRun: () => void }) {
 // Contact links matter more than anything decorative — nothing here should be
 // more than one click away.
 
-const GITHUB_URL = "https://github.com/Prajwal210lm";
-// TODO: confirm this is the correct LinkedIn slug — README (from an earlier
-// session) has a different one ("prajwal-b-006050228"). Expected format:
-// https://www.linkedin.com/in/<your-slug>/ — paste the right one here.
-const LINKEDIN_URL = "https://www.linkedin.com/in/prajwal-b-0b5b3b1b0/";
+const GITHUB_URL = "https://github.com/Prajwal210lm/Supply-Chain-liquidity-lens";
+const LINKEDIN_URL = "https://www.linkedin.com/in/prajwal-b-006050228";
 const EMAIL_ADDRESS = "prajwal210lm@gmail.com";
 
 function Footer() {
@@ -672,8 +669,8 @@ function Footer() {
             href={GITHUB_URL}
             target="_blank"
             rel="noreferrer"
-            aria-label="GitHub profile"
-            title="GitHub profile"
+            aria-label="GitHub repository"
+            title="GitHub repository"
             className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 cursor-pointer"
           >
             <GitHubIcon />

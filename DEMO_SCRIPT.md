@@ -59,15 +59,7 @@ If the interviewer is a partner or business-side, skip to 4:00. If they are tech
 
 "The contract validator sits between the two layers and enforces the boundary. If any LLM node produces a digit, even a correct one, the validator rejects it. Numbers enter the output only through placeholder paths that get rendered from the deterministic core."
 
-## 4:00 - 4:30 | The violation bar (quick, builds credibility)
-
-Point to the violations bar at the bottom.
-
-"The tool even reports its own contract violations. There is one here: the expiry cluster has 20 members where safe-to-release is false because their stock is at or below the order-up-to level. The guardrail semantically applies to excess releases, not expiry write-offs. That is a known v2 refinement, documented, not hidden."
-
-"I left this visible because in consulting, showing the client what the tool cannot do yet is as important as showing what it can."
-
-## 4:30 - 5:00 | Close
+## 4:00 - 5:00 | Close
 
 "I built this solo, from data model to board brief, in about two weeks using Claude Code. The analytics core is hand-tested. The AI layer adds judgment without touching the math. And the output is at the level where you could put it in a Deloitte deck."
 
