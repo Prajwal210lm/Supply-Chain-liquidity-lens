@@ -139,6 +139,14 @@ function MailIcon() {
   );
 }
 
+function ExternalLinkIcon() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M7 17L17 7M17 7H9M17 7V15" />
+    </svg>
+  );
+}
+
 function StepArrow() {
   return (
     <div className="flex items-center justify-center flex-shrink-0 text-white/25 py-1 md:py-0 md:px-2">
@@ -657,10 +665,94 @@ const GITHUB_URL = "https://github.com/Prajwal210lm/Supply-Chain-liquidity-lens"
 const LINKEDIN_URL = "https://www.linkedin.com/in/prajwal-b-006050228";
 const EMAIL_ADDRESS = "prajwal210lm@gmail.com";
 
+// ── Portfolio cross-links — quiet navigation to the other three projects ─────
+
+type PortfolioProject = {
+  index: string;
+  name: string;
+  description: string;
+  href: string | null; // null = current site, unlinked
+};
+
+const PORTFOLIO_PROJECTS: PortfolioProject[] = [
+  {
+    index: "01",
+    name: "Liquidity Lens",
+    description: "where cash is trapped",
+    href: null,
+  },
+  {
+    index: "02",
+    name: "Supplier Resilience Radar",
+    description: "which supplier can stop the line",
+    href: "https://supplier-resilience-radar.vercel.app",
+  },
+  {
+    index: "03",
+    name: "OTIF Root-Cause Engine",
+    description: "why deliveries fail",
+    href: "https://otif-root-cause-engine.vercel.app",
+  },
+  {
+    index: "04",
+    name: "Supply Chain Copilot",
+    description: "ask the data anything",
+    href: "https://supply-chain-copilot-nine.vercel.app",
+  },
+];
+
+function PortfolioRow({ project }: { project: PortfolioProject }) {
+  const nameEl = project.href ? (
+    <a
+      href={project.href}
+      target="_blank"
+      rel="noreferrer"
+      className="font-semibold text-[var(--text-primary)] hover:text-[var(--navy-700)] transition-colors duration-200 cursor-pointer inline-flex items-center gap-1"
+    >
+      {project.name}
+      <ExternalLinkIcon />
+    </a>
+  ) : (
+    <span className="font-semibold text-[var(--text-primary)]">
+      {project.name}{" "}
+      <span className="font-normal text-[var(--text-muted)]">(this site)</span>
+    </span>
+  );
+
+  return (
+    <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5 text-[13px] leading-[1.6]">
+      <span className="font-mono text-[10.5px] text-[var(--text-muted)] w-5 flex-shrink-0 tnum">
+        {project.index}
+      </span>
+      {nameEl}
+      <span className="text-[var(--text-muted)]">·</span>
+      <span className="text-[var(--text-secondary)]">{project.description}</span>
+    </div>
+  );
+}
+
 function Footer() {
   return (
-    <footer className="border-t border-black/5 py-8 bg-[var(--card)]">
-      <div className="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <footer className="border-t border-black/5 bg-[var(--card)]">
+      {/* Portfolio — quiet navigation aid, not a promotional block */}
+      <div className="max-w-5xl mx-auto px-6 pt-8 pb-6 border-b border-black/5">
+        <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--navy-800)] mb-2.5">
+          <span className="w-3 h-px bg-[var(--gold)] flex-shrink-0" aria-hidden="true" />
+          Portfolio
+        </p>
+        <p className="text-[12.5px] text-[var(--text-secondary)] max-w-xl mb-4 leading-[1.6]">
+          A four-project AI supply-chain portfolio. Each one takes a different problem and a
+          different AI architecture.
+        </p>
+        <div className="space-y-2">
+          {PORTFOLIO_PROJECTS.map((p) => (
+            <PortfolioRow key={p.name} project={p} />
+          ))}
+        </div>
+      </div>
+
+      {/* Signature line + contact */}
+      <div className="max-w-5xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-[11px] text-[var(--text-muted)] tracking-wide text-center sm:text-left">
           Liquidity Lens · Working-Capital Diagnostic · Built with Python, LangGraph, Claude &amp; Next.js
         </p>
