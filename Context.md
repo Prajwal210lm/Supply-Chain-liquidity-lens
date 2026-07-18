@@ -47,7 +47,7 @@ This is deliberately not "executives and the board" in the abstract. A named use
 Three layers, kept strictly separated, because the separation is the defensibility.
 
 **1. Deterministic analytics core (Python, no LLM).**
-This computes every number. It is auditable, testable, and walkable line by line in an interview.
+This computes every number. It is auditable, testable, and walkable line by line.
 - Data ingestion and quality validation (missing fields, negative stock, stale records, unit mismatches).
 - ABC-XYZ classification (value vs demand variability).
 - Inventory health metrics: days inventory outstanding (DIO), cash conversion cycle inputs, coverage vs target.
@@ -158,4 +158,4 @@ Demo script, the five-minute walkthrough, finish the two-page case study, record
 
 ## What makes it win
 
-The code is table stakes. The case study and the board brief are the product. Anyone can build a model. Few junior candidates can produce a deliverable that diagnoses a real operation, quantifies the value in cash, and explains it to a CFO. That document, paired with a working tool whose every number is auditable, is what turns a portfolio link into an interview.
+The code is table stakes. The case study and the board brief are the product. Anyone can build a model. Few junior candidates can produce a deliverable that diagnoses a real operation, quantifies the value in cash, and explains it to a CFO. That document, paired with a working tool whose every number is auditable, is what makes a portfolio link genuinely defensible.
