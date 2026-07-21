@@ -2,6 +2,7 @@
 
 import { Cluster, CLUSTER_LABELS, CLUSTER_ACCENT, CLUSTER_ACCENT_FALLBACK } from "@/lib/api";
 import { SectionHeading } from "@/components/SummaryCards";
+import ScrollFadeX from "@/components/ScrollFadeX";
 import { formatAED } from "@/lib/format";
 
 type SupplierRow = {
@@ -53,7 +54,7 @@ export default function SupplierAnalysis({ clusters }: { clusters: Cluster[] }) 
       style={{ background: "var(--card)", boxShadow: "var(--elev-2)", border: "1px solid var(--hairline)" }}
     >
       <SectionHeading>Supplier Exposure</SectionHeading>
-      <div className="overflow-x-auto">
+      <ScrollFadeX className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b border-black/8">
@@ -91,7 +92,7 @@ export default function SupplierAnalysis({ clusters }: { clusters: Cluster[] }) 
             })}
           </tbody>
         </table>
-      </div>
+      </ScrollFadeX>
     </section>
   );
 }

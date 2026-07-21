@@ -209,7 +209,7 @@ export default function AskWhyPanel({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-white/70 hover:text-white hover:bg-white/10 cursor-pointer transition-colors duration-200"
+            className="w-11 h-11 flex items-center justify-center rounded-lg text-white/70 hover:text-white hover:bg-white/10 cursor-pointer transition-colors duration-200"
             aria-label="Close panel"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
@@ -272,7 +272,7 @@ export default function AskWhyPanel({
           <button
             onClick={handleAskAi}
             disabled={aiLoading || !isOpen}
-            className="w-full px-4 py-2.5 text-[13px] font-semibold uppercase tracking-[0.06em] text-white rounded-xl
+            className="w-full px-4 py-3 min-h-[44px] text-[13px] font-semibold uppercase tracking-[0.06em] text-white rounded-xl
                        cursor-pointer transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5
                        disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             style={{ background: "linear-gradient(180deg, var(--navy-700), var(--navy-800))", boxShadow: "var(--elev-2)" }}

@@ -581,7 +581,7 @@ function LandingSection({ onRun }: { onRun: () => void }) {
               href="/data/liquidity_lens_dataset.zip"
               download
               className="inline-flex items-center gap-2 border tx-gold-hairline text-[var(--text-on-dark-secondary)] hover:text-[var(--text-on-dark)]
-                         hover:border-[var(--gold-soft)]/60 rounded-full px-5 py-2.5 text-[13px] font-medium
+                         hover:border-[var(--gold-soft)]/60 rounded-full px-5 py-3 text-[13px] font-medium min-h-[44px]
                          cursor-pointer transition-colors duration-200"
             >
               <DownloadIcon />
@@ -707,7 +707,7 @@ function PortfolioRow({ project }: { project: PortfolioProject }) {
       href={project.href}
       target="_blank"
       rel="noreferrer"
-      className="font-semibold text-[var(--text-primary)] hover:text-[var(--navy-700)] transition-colors duration-200 cursor-pointer inline-flex items-center gap-1"
+      className="font-semibold text-[var(--text-primary)] hover:text-[var(--navy-700)] transition-colors duration-200 cursor-pointer inline-flex items-center gap-1 py-3 -my-3"
     >
       {project.name}
       <ExternalLinkIcon />
@@ -756,14 +756,14 @@ function Footer() {
         <p className="text-[11px] text-[var(--text-muted)] tracking-wide text-center sm:text-left">
           Liquidity Lens · Working-Capital Diagnostic · Built with Python, LangGraph, Claude &amp; Next.js
         </p>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1">
           <a
             href={GITHUB_URL}
             target="_blank"
             rel="noreferrer"
             aria-label="GitHub repository"
             title="GitHub repository"
-            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 cursor-pointer"
+            className="flex items-center justify-center w-11 h-11 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 cursor-pointer"
           >
             <GitHubIcon />
           </a>
@@ -773,7 +773,7 @@ function Footer() {
             rel="noreferrer"
             aria-label="LinkedIn profile"
             title="LinkedIn profile"
-            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 cursor-pointer"
+            className="flex items-center justify-center w-11 h-11 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 cursor-pointer"
           >
             <LinkedInIcon />
           </a>
@@ -781,7 +781,7 @@ function Footer() {
             href={`mailto:${EMAIL_ADDRESS}`}
             aria-label="Email the builder"
             title="Email the builder"
-            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 cursor-pointer"
+            className="flex items-center justify-center w-11 h-11 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 cursor-pointer"
           >
             <MailIcon />
           </a>
@@ -841,7 +841,7 @@ export default function Home() {
               <LensMark className="w-5 h-5" />
             </span>
             <div className="min-w-0">
-              <h1 className="font-display text-[21px] font-semibold text-[var(--text-on-dark)] leading-none">Liquidity Lens</h1>
+              <p className="font-display text-[21px] font-semibold text-[var(--text-on-dark)] leading-none">Liquidity Lens</p>
               <p className="hidden sm:block text-[11.5px] mt-1 text-[var(--text-on-dark-muted)] tracking-wide truncate">
                 Working-Capital Diagnostic · GCC Distributor
               </p>
@@ -852,7 +852,7 @@ export default function Home() {
               <button
                 onClick={() => { setData(null); setStatus("idle"); }}
                 className="flex items-center gap-1.5 text-[13px] text-white/65 hover:text-white
-                           border border-white/15 hover:border-white/30 rounded-full px-4 py-1.5
+                           border border-white/15 hover:border-white/30 rounded-full px-4 py-3 min-h-[44px]
                            cursor-pointer transition-colors duration-200"
               >
                 <ArrowLeftIcon />

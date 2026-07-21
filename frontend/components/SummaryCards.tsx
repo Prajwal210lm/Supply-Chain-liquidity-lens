@@ -75,12 +75,12 @@ function Card({ label, value, count, accentColor, isTotal, denominator }: CardPr
       </p>
 
       <p
-        className="font-display text-[42px] leading-none mb-1.5 tnum"
+        className="font-display text-[28px] sm:text-[34px] lg:text-[42px] leading-none mb-1.5 tnum flex flex-wrap items-baseline gap-x-1.5"
         style={{ color: isTotal ? "var(--text-on-dark)" : accentColor }}
       >
-        {fmtCompact(animated)}
+        <span>{fmtCompact(animated)}</span>
         <span
-          className="font-sans text-[14px] font-normal ml-1.5"
+          className="font-sans text-[12px] sm:text-[13px] lg:text-[14px] font-normal"
           style={{ color: isTotal ? "var(--text-on-dark-muted)" : "var(--text-secondary)" }}
         >
           AED

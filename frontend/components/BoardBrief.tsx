@@ -4,6 +4,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { ReactNode } from "react";
 import { SectionHeading } from "@/components/SummaryCards";
+import ScrollFadeX from "@/components/ScrollFadeX";
 
 // Reformat large currency values ("18,819,464.91 AED") into rounded forms
 // (18.8M AED / 281K AED / 24.6K AED) directly in the markdown/headline prose.
@@ -62,9 +63,9 @@ export default function BoardBrief({
               remarkPlugins={[remarkGfm]}
               components={{
                 table: ({ children }: { children?: ReactNode }) => (
-                  <div className="overflow-x-auto my-5 rounded-xl border border-black/8">
+                  <ScrollFadeX className="overflow-x-auto my-5 rounded-xl border border-black/8" fadeClassName="rounded-r-xl">
                     <table className="w-full text-[13.5px] border-collapse">{children}</table>
-                  </div>
+                  </ScrollFadeX>
                 ),
                 thead: ({ children }: { children?: ReactNode }) => (
                   <thead style={{ background: "var(--surface)" }}>{children}</thead>

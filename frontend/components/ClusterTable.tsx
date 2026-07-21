@@ -13,6 +13,7 @@ import {
   fmtDecimal,
 } from "@/lib/api";
 import { SectionHeading } from "@/components/SummaryCards";
+import ScrollFadeX from "@/components/ScrollFadeX";
 import { formatAED } from "@/lib/format";
 
 // ── Per-cluster column configuration ─────────────────────────────────────────
@@ -99,7 +100,7 @@ function ClusterSection({
 
       {/* Collapsible table */}
       {open && cluster.top_members.length > 0 && (
-        <div className="overflow-x-auto border-t border-black/5">
+        <ScrollFadeX className="overflow-x-auto border-t border-black/5">
           <table className="w-full border-collapse">
             <thead>
               <tr style={{ background: "var(--surface)" }}>
@@ -158,7 +159,7 @@ function ClusterSection({
               })}
             </tbody>
           </table>
-        </div>
+        </ScrollFadeX>
       )}
 
       {open && cluster.top_members.length === 0 && (

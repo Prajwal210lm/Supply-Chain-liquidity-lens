@@ -3,6 +3,7 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Cluster, fmtFull } from "@/lib/api";
 import { SectionHeading } from "@/components/SummaryCards";
+import ScrollFadeX from "@/components/ScrollFadeX";
 import { formatAED } from "@/lib/format";
 
 // Sophisticated, considered palette — navy/gold/teal/risk, no purple slop.
@@ -91,7 +92,7 @@ export default function CategoryBreakdown({ clusters }: { clusters: Cluster[] })
         </div>
 
         {/* Legend table */}
-        <div className="flex-1 w-full overflow-x-auto">
+        <ScrollFadeX wrapperClassName="relative flex-1 w-full" className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-black/8">
@@ -115,7 +116,7 @@ export default function CategoryBreakdown({ clusters }: { clusters: Cluster[] })
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollFadeX>
       </div>
     </section>
   );
