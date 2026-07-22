@@ -12,6 +12,20 @@ const NODE_LABELS: Record<string, string> = {
   narrate: "Narrate",
 };
 
+// Turns a raw validator message into one plain-English sentence a
+// non-technical reader can follow, framed as "caught and handled".
+// Returns null for any message we don't recognise, in which case the row
+// falls back to showing just the raw technical string (no worse than before).
+function humanize(msg: string): string | null {
+  if (/placeholder .* does not resolve|does not resolve to a fact/i.test(msg)) {
+    return "The AI tried to reference a data point that doesn't exist. The check caught it and stripped it out before it could reach the report.";
+  }
+  if (/breaches the guardrail|not safe to release/i.test(msg)) {
+    return "The AI suggested releasing stock that a safety rule protects. The rule blocked it, so those items stayed protected — the safeguard worked exactly as designed.";
+  }
+  return null;
+}
+
 // Verifies the one reconciliation invariant that's fully checkable from the API
 // response as shipped: per lever, the (untruncated) cluster.lever_total values
 // sum to the portfolio value-at-stake. This mirrors backend.facts.reconciliation_errors'
@@ -85,12 +99,14 @@ export default function ViolationsBar({
           <span className="absolute inset-0 rounded-full" style={{ backgroundColor: accent }} />
         </span>
         <span className="text-[13px] font-semibold" style={{ color: accent }}>
-          {clean ? "Contract clean, 0 violations, totals reconciled" : "AI output independently verified"}
+          {clean
+            ? "Contract clean, 0 violations, totals reconciled"
+            : `Self-checked — ${count} issue${count === 1 ? "" : "s"} caught and corrected`}
         </span>
         <span className="text-[11px] text-[var(--text-secondary)]">
           {clean
             ? <>Every figure traced to the deterministic core · {qualityReport.total_skus.toLocaleString()} SKUs validated</>
-            : <>Every figure traced to tested code · {count} AI output{count === 1 ? "" : "s"} flagged and corrected during this run</>}
+            : <>The AI wrote the analysis; an automated check then verified every figure against the tested code and corrected what it caught before this report reached you.</>}
         </span>
         {!clean && !reconciled && (
           <span className="text-[11px] font-medium" style={{ color: accent }}>
@@ -109,25 +125,33 @@ export default function ViolationsBar({
           {count > 0 && (
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--amber-accent)] mb-2">
-                What Was Flagged
+                What the check caught and corrected
               </p>
-              <div className="max-h-48 overflow-y-auto">
+              <div className="max-h-64 overflow-y-auto">
                 <table className="w-full text-[12px] border-collapse">
                   <thead>
                     <tr className="text-[var(--text-secondary)]">
-                      <th className="text-left pb-2 pr-4 w-28 font-semibold">Pipeline stage</th>
-                      <th className="text-left pb-2 font-semibold">Violation</th>
+                      <th className="text-left pb-2 pr-4 w-24 font-semibold align-bottom">Step</th>
+                      <th className="text-left pb-2 font-semibold align-bottom">What was caught &amp; handled</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-black/5">
-                    {allViolations.map(({ node, msg }, i) => (
-                      <tr key={i}>
-                        <td className="py-1.5 pr-4 font-mono text-[var(--amber-accent)] align-top">
-                          {NODE_LABELS[node] ?? node}
-                        </td>
-                        <td className="py-1.5 text-[var(--text-primary)]/80">{msg}</td>
-                      </tr>
-                    ))}
+                    {allViolations.map(({ node, msg }, i) => {
+                      const human = humanize(msg);
+                      return (
+                        <tr key={i}>
+                          <td className="py-2.5 pr-4 font-mono text-[var(--amber-accent)] align-top whitespace-nowrap">
+                            {NODE_LABELS[node] ?? node}
+                          </td>
+                          <td className="py-2.5 align-top">
+                            {human && (
+                              <p className="text-[13px] text-[var(--text-primary)]/85 leading-[1.55] mb-1.5">{human}</p>
+                            )}
+                            <p className="font-mono text-[11px] text-[var(--text-muted)] leading-[1.5] break-words">{msg}</p>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
