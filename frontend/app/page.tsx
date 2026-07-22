@@ -848,6 +848,16 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {status === "idle" && (
+              <button
+                onClick={handleRunDiagnosis}
+                className="sm:hidden flex items-center justify-center text-xs font-semibold text-white
+                           px-3 py-1.5 min-h-[44px] rounded-full cursor-pointer transition-colors duration-200"
+                style={{ background: "linear-gradient(180deg, var(--navy-700), var(--navy-800))" }}
+              >
+                Run Diagnosis
+              </button>
+            )}
             {status === "done" && (
               <button
                 onClick={() => { setData(null); setStatus("idle"); }}

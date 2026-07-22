@@ -85,13 +85,18 @@ export default function ViolationsBar({
           <span className="absolute inset-0 rounded-full" style={{ backgroundColor: accent }} />
         </span>
         <span className="text-[13px] font-semibold" style={{ color: accent }}>
-          {clean
-            ? "Contract clean, 0 violations, totals reconciled"
-            : `${count} contract violation${count === 1 ? "" : "s"}${!reconciled ? " · totals do not reconcile" : ""}`}
+          {clean ? "Contract clean, 0 violations, totals reconciled" : "AI output independently verified"}
         </span>
         <span className="text-[11px] text-[var(--text-secondary)]">
-          Every figure traced to the deterministic core · {qualityReport.total_skus.toLocaleString()} SKUs validated
+          {clean
+            ? <>Every figure traced to the deterministic core · {qualityReport.total_skus.toLocaleString()} SKUs validated</>
+            : <>Every figure traced to tested code · {count} AI output{count === 1 ? "" : "s"} flagged and corrected during this run</>}
         </span>
+        {!clean && !reconciled && (
+          <span className="text-[11px] font-medium" style={{ color: accent }}>
+            Totals do not reconcile
+          </span>
+        )}
         {hasDetail && (
           <span className="ml-auto text-[11px] text-[var(--text-secondary)] flex-shrink-0">
             {expanded ? "Hide detail" : "Show detail"}
@@ -104,13 +109,13 @@ export default function ViolationsBar({
           {count > 0 && (
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--amber-accent)] mb-2">
-                Contract Violations
+                What Was Flagged
               </p>
               <div className="max-h-48 overflow-y-auto">
                 <table className="w-full text-[12px] border-collapse">
                   <thead>
                     <tr className="text-[var(--text-secondary)]">
-                      <th className="text-left pb-2 pr-4 w-28 font-semibold">Node</th>
+                      <th className="text-left pb-2 pr-4 w-28 font-semibold">Pipeline stage</th>
                       <th className="text-left pb-2 font-semibold">Violation</th>
                     </tr>
                   </thead>
